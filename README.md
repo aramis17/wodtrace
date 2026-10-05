@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WodTrace
 
-## Getting Started
+PWA móvil-primero para registrar WODs, PRs y progreso de entrenamiento. El perfil demo compartido se carga al abrir la app para explorar la experiencia sin crear una cuenta.
 
-First, run the development server:
+## Stack
+
+- Next.js (App Router) + TypeScript + Tailwind CSS
+- Prisma 7 + PostgreSQL (Supabase)
+- Supabase Storage para fotos (fallback local en dev)
+- Vercel-ready
+
+## Setup
 
 ```bash
+cp .env.example .env
+# Edita DATABASE_URL y GUEST_SESSION_SECRET
+
+npm install
+npm run db:setup   # prisma db push + seeds
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Variable | Uso |
+| --- | --- |
+| `DATABASE_URL` | Postgres (pooled en runtime) |
+| `DIRECT_URL` | Opcional, migraciones directas |
+| `GUEST_SESSION_SECRET` | Firma JWT de sesión invitada (≥16 chars) |
+| `NEXT_PUBLIC_SUPABASE_URL` | Storage (opcional) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Upload firmado (opcional) |
+| `SUPABASE_STORAGE_BUCKET` | Default `result-photos` |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Sin Supabase Storage, las fotos se guardan en `public/uploads/`.
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+- `npm run dev` — desarrollo
+- `npm run build` / `start` — producción
+- `npm test` — unitarias (scoring, unidades, timers, discos)
+- `npm run db:seed` — WODs, PRs, 4 niveles × estándares (124)
+- `npm run lint`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Rutas
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+`/`, `/activity`, `/wods`, `/wods/[id]`, `/timers`, `/prs`, `/prs/[id]`, `/settings`, `/tools/barbell`
 
-## Deploy on Vercel
+## Diseño
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Ver `Design.md` (sistema **Forge Dark**).

@@ -1,0 +1,226 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ScoreType {
+  TIME
+  REPS_TIME
+  WEIGHT
+  AMRAP
+  CUSTOM
+}
+
+enum TimerMode {
+  AMRAP
+  EMOM
+  TABATA
+  FOR_TIME
+}
+
+enum WeightUnit {
+  KG
+  LB
+}
+
+enum ThemePreference {
+  DARK
+  LIGHT
+  SYSTEM
+}
+
+enum FavoriteTarget {
+  WORKOUT
+  PERSONAL_RECORD
+}
+
+enum Scaling {
+  RX
+  SCALED
+}
+
+model GuestProfile {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  alias     String   @default("Atleta")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  preference Preference?
+  workouts   Workout[]
+  results    WorkoutResult[]
+  prs        PersonalRecord[]
+  attempts   PersonalRecordAttempt[]
+  favorites  Favorite[]
+  media      MediaAsset[]
+}
+
+model Preference {
+  id                 String          @id @default(cuid())
+  guestId            String          @unique
+  guest              GuestProfile    @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  weightUnit         WeightUnit      @default(KG)
+  theme              ThemePreference @default(DARK)
+  locale             String          @default("es")
+  keepScreenAwake    Boolean         @default(false)
+  helpUrl            String?
+  shareUrl           String?
+  rateUrl            String?
+  athleticLevelIndex Int             @default(0)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+}
+
+model WorkoutCategory {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  description String?
+  sortOrder   Int       @default(0)
+  isSeed      Boolean   @default(true)
+  workouts    Workout[]
+  createdAt   DateTime  @default(now())
+}
+
+model Workout {
+  id          String           @id @default(cuid())
+  slug        String?
+  name        String
+  description String
+  scoreType   ScoreType
+  scheme      String?
+  rxNotes     String?
+  scaledNotes String?
+  isSeed      Boolean          @default(false)
+  isCustom    Boolean          @default(false)
+  guestId     String?
+  guest       GuestProfile?    @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  categoryId  String?
+  category    WorkoutCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  results     WorkoutResult[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([guestId])
+  @@index([categoryId])
+  @@index([name])
+}
+
+model WorkoutResult {
+  id        String       @id @default(cuid())
+  guestId   String
+  guest     GuestProfile @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  workoutId String
+  workout   Workout      @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  performedAt DateTime
+  scaling   Scaling      @default(RX)
+  // Normalized score fields
+  timeSeconds   Int?
+  reps          Int?
+  weightKg      Float?
+  rounds        Int?
+  extraReps     Int?
+  customValue   String?
+  notes         String?
+  mediaId       String?      @unique
+  media         MediaAsset?  @relation(fields: [mediaId], references: [id], onDelete: SetNull)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([guestId, performedAt])
+  @@index([workoutId])
+}
+
+model PersonalRecord {
+  id        String                  @id @default(cuid())
+  slug      String?
+  name      String
+  scoreType ScoreType               @default(WEIGHT)
+  isSeed    Boolean                 @default(false)
+  isCustom  Boolean                 @default(false)
+  guestId   String?
+  guest     GuestProfile?           @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  attempts  PersonalRecordAttempt[]
+  createdAt DateTime                @default(now())
+  updatedAt DateTime                @updatedAt
+
+  @@index([guestId])
+  @@index([name])
+}
+
+model PersonalRecordAttempt {
+  id               String         @id @default(cuid())
+  guestId          String
+  guest            GuestProfile   @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  personalRecordId String
+  personalRecord   PersonalRecord @relation(fields: [personalRecordId], references: [id], onDelete: Cascade)
+  performedAt      DateTime
+  timeSeconds      Int?
+  reps             Int?
+  weightKg         Float?
+  notes            String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([guestId, performedAt])
+  @@index([personalRecordId])
+}
+
+model Favorite {
+  id         String         @id @default(cuid())
+  guestId    String
+  guest      GuestProfile   @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  targetType FavoriteTarget
+  targetId   String
+  createdAt  DateTime       @default(now())
+
+  @@unique([guestId, targetType, targetId])
+  @@index([guestId])
+}
+
+model MediaAsset {
+  id        String         @id @default(cuid())
+  guestId   String
+  guest     GuestProfile   @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  storagePath String
+  mimeType  String
+  sizeBytes Int
+  result    WorkoutResult?
+  createdAt DateTime       @default(now())
+
+  @@index([guestId])
+}
+
+model AthleticLevel {
+  id          String              @id @default(cuid())
+  slug        String              @unique
+  name        String
+  description String?
+  sortOrder   Int                 @default(0)
+  color       String?
+  standards   AthleticStandard[]
+}
+
+model AthleticStandard {
+  id        String        @id @default(cuid())
+  levelId   String
+  level     AthleticLevel @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  name      String
+  category  String
+  maleValue String?
+  femaleValue String?
+  unit      String?
+  sortOrder Int           @default(0)
+
+  @@index([levelId])
+}
+
+model SeedMeta {
+  id        String   @id @default("main")
+  version   Int      @default(1)
+  appliedAt DateTime @default(now())
+}
