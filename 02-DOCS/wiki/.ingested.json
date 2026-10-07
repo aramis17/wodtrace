@@ -1,0 +1,37 @@
+{
+  "README.md": {
+    "sha256": "dfa608911d159e8c0afb57000b8a50df2ede06a662a810d51512668fd9d199ab",
+    "ingestedAt": "2026-10-06",
+    "raw": "raw/producto/readme.md"
+  },
+  "IMPLEMENTATION_PLAN.md": {
+    "sha256": "1ddc73c800c36ab69ad820b84f8ae5ab1ebbf1c10fd4eef6a4ca783934e8c2e7",
+    "ingestedAt": "2026-10-06",
+    "raw": "raw/producto/implementation-plan.md"
+  },
+  "Design.md": {
+    "sha256": "905de17ada9bf3c73801716db003a5c4f6061721a15f351356a115569134228b",
+    "ingestedAt": "2026-10-06",
+    "raw": "raw/diseno/design-forge-dark.md"
+  },
+  "CLAUDE.md": {
+    "sha256": "adde8dea14c49dea538b7c31020832eaa2f0109421499f77d219481c86f219ce",
+    "ingestedAt": "2026-10-06",
+    "raw": "raw/arquitectura/claude-md.md"
+  },
+  "01-TOOLS/README.md": {
+    "sha256": "e74d3837d863b2209dac36d3124d50d672e137328b634837ec2f0dfc01114952",
+    "ingestedAt": "2026-10-06",
+    "raw": "raw/herramientas/tools-readme.md"
+  },
+  "01-TOOLS/SUPABASE/CREDENTIALS.md": {
+    "sha256": "a897104ff77aaead73bff9cb77ce4e41deaef68c308c6ee79632d6335293c3f9",
+    "ingestedAt": "2026-10-06",
+    "raw": "raw/herramientas/supabase-credentials.md"
+  },
+  "01-TOOLS/DB_CLI/CREDENTIALS.md": {
+    "sha256": "6e2f9c2c82393318e1d0d922a72bf9f8931fdab924cba636a3a33684763998be",
+    "ingestedAt": "2026-10-06",
+    "raw": "raw/herramientas/db-cli-credentials.md"
+  }
+}
