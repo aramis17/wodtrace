@@ -43,7 +43,7 @@ version: v1.0.0
 10. Every query is scoped to the current profile. Library listings use
     `OR: [{ isSeed: true }, { guestId }]`; opening a single workout uses `visibleWorkoutWhere`. Team
     data requires ownership (`requireTeamOwner`) or ACTIVE membership.
-11. Weight is stored in kg (`weightKg`) and converted only at input and display.
+11. Weight is shown and entered in **pounds (lb) by default** (`DEFAULT_WEIGHT_UNIT`, `preferredWeightUnit` in `src/lib/units.ts`); a user may switch to kg in Settings. Storage stays in kg (`weightKg`), converted only at input and display.
 12. A team has exactly one owner, who is the only one who programs. Members are always students.
 13. Commit messages use gitmoji + Conventional Commits (`✨ feat(scope): subject`). Enforced by
     `.rsc/gitmoji-guard.mjs`.
@@ -90,4 +90,4 @@ version: v1.0.0
 
 | Date | Version | Change | Why |
 |------|---------|--------|-----|
-| 2026-10-07 | v1.0.0 | Initial constitution drafted. | rsc onboarding. Choices made: pure-logic tests, human-only authorship, no perf budget yet. |
+| 2026-10-07 | v1.0.0 | Initial constitution drafted. | rsc onboarding. Choices made: pure-logic tests, human-only authorship, no perf budget yet. Principle 11 set to lb display default before ratification. |
