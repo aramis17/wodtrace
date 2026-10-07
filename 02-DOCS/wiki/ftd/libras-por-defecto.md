@@ -2,7 +2,7 @@
 type: feature
 title: Libras por defecto
 topic: ftd
-status: in-progress
+status: done
 timestamp: 2026-10-07T00:00:00Z
 ---
 
@@ -31,8 +31,8 @@ La app debe mostrar y pedir el peso en libras por defecto. Internamente se sigue
 
 - [x] Helper `preferredWeightUnit` + `DEFAULT_WEIGHT_UNIT = "LB"` en `src/lib/units.ts`, con test.
 - [x] Páginas y acciones usan el helper (no queda ningún fallback a `"KG"`).
-- [ ] Schema `@default(LB)` aplicado a la BD. El código ya está cambiado; falta `prisma db push` porque la BD local está apagada.
-- [ ] El perfil demo y el reset usan LB. `seed-demo.ts` y el reset ya usan LB; falta actualizar la fila del demo que ya existe en la BD.
+- [x] Schema `@default(LB)` aplicado a la BD.
+- [x] El perfil demo y el reset usan LB.
 - [x] Constitución, principio 11, actualizada.
 - [x] Lint, tsc, tests y build en verde.
 
@@ -42,8 +42,9 @@ La app debe mostrar y pedir el peso en libras por defecto. Internamente se sigue
 - `tsc --noEmit` sin errores; `npm run lint` 0 errores (1 warning previo ajeno).
 - `npm run build` → Compiled successfully.
 - Búsqueda de fallbacks `?? "KG"` / `|| "KG"` en `src/` → 0 resultados.
-- `prisma db push` → P1001, BD local no accesible.
+- `prisma db push` (BD local) → "Your database is now in sync".
+- Columna `Preference.weightUnit` default → `'LB'::"WeightUnit"`; perfil demo → `LB` (1 fila actualizada).
 
 ## Next
 
-Con la BD local encendida: `npx prisma db push` y `UPDATE "Preference" SET "weightUnit"='LB' WHERE "guestId"='wodtrace-demo';` (o `npm run db:seed` si el demo aún no existe).
+Nada pendiente.

@@ -10,7 +10,7 @@ version: v1.0.0
 
 # WodTrace — Constitution
 
-> Version: v1.0.0 · Ratified: pending · Last amended: 2026-10-07
+> Version: v1.0.0 · Ratified: 2026-10-07 · Last amended: 2026-10-07
 > The non-negotiable principles every rsc-sdd phase obeys. Mechanics live in `CLAUDE.md` and
 > `02-DOCS/wiki/arquitectura/arquitectura-general.md`; this file ratifies the principle.
 
@@ -90,4 +90,4 @@ version: v1.0.0
 
 | Date | Version | Change | Why |
 |------|---------|--------|-----|
-| 2026-10-07 | v1.0.0 | Initial constitution drafted. | rsc onboarding. Choices made: pure-logic tests, human-only authorship, no perf budget yet. Principle 11 set to lb display default before ratification. |
+| 2026-10-07 | v1.0.0 | Ratified initial constitution. | rsc onboarding. Choices made: pure-logic tests, human-only authorship, no perf budget yet. Principle 11 set to lb display default before ratification. |
