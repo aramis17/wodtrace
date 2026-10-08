@@ -25,9 +25,11 @@ Ver la app funcionando con datos realistas de box, coach y tracks, y entrar con 
 - [x] El archivo de credenciales no se sube → `git check-ignore` lo marca por `01-TOOLS/.gitignore`.
 - [x] `tsc`, lint (0 errores) y `npm test` 75/75.
 
+- [x] Login probado en navegador con Playwright (Carla y Ana) → `playwright-cli` interactivo y `npm run test:e2e` 4/4.
+
 ## Evidence
 
-Ejecutado el 2026-10-08 contra la BD local y el proyecto Supabase de `.env`.
+Ejecutado el 2026-10-08 contra la BD local y el proyecto Supabase de `.env`. Las pruebas de navegador encontraron que un `next dev` arrancado antes del cambio de esquema conserva el cliente Prisma viejo (`prisma.track` undefined); reiniciar el servidor lo resuelve.
 
 ## Next
 
