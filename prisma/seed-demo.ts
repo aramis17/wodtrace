@@ -26,7 +26,7 @@ export async function seedDemoData(prisma: PrismaClient) {
     where: { guestId: DEMO_GUEST_ID },
     create: {
       guestId: DEMO_GUEST_ID,
-      weightUnit: "KG",
+      weightUnit: "LB",
       theme: "DARK",
       locale: "es",
       athleticLevelIndex: 1,

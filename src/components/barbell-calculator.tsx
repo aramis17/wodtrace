@@ -15,7 +15,7 @@ import {
   type IncrementOption,
   type BarbellInventory,
 } from "@/lib/barbell-inventory";
-import { roundWeight } from "@/lib/units";
+import { DEFAULT_WEIGHT_UNIT, roundWeight } from "@/lib/units";
 import { Card } from "./ui/card";
 import { Input, Label } from "./ui/input";
 
@@ -49,7 +49,7 @@ const PLATE_COLORS_KG: Record<number, string> = {
 
 function plateColor(weight: number, unit: "KG" | "LB"): string {
   const map = unit === "KG" ? PLATE_COLORS_KG : PLATE_COLORS_LB;
-  return map[weight] ?? "#343842";
+  return map[weight] ?? "#3F3F46";
 }
 
 function plateHeight(weight: number, unit: "KG" | "LB"): number {
@@ -61,7 +61,7 @@ function plateHeight(weight: number, unit: "KG" | "LB"): number {
 }
 
 export function BarbellCalculator({
-  defaultUnit = "KG",
+  defaultUnit = DEFAULT_WEIGHT_UNIT,
 }: {
   defaultUnit?: "KG" | "LB";
 }) {
@@ -195,7 +195,7 @@ export function BarbellCalculator({
 
       {/* 1RM ESTIMADO */}
       <Card className="p-5 text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ember">1RM ESTIMADO</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">1RM ESTIMADO</p>
         <p className="mt-2 font-display text-6xl font-extrabold tracking-tight text-text-primary">
           {irm != null ? (
             <>
@@ -216,14 +216,14 @@ export function BarbellCalculator({
       <Card className="overflow-hidden p-0">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <div className="flex items-center gap-2">
-            <span className="h-6 w-1 rounded bg-ember" />
+            <span className="h-6 w-1 rounded bg-primary" />
             <h2 className="font-display text-xl uppercase tracking-wide text-text-primary">PORCENTAJES</h2>
           </div>
           <button
             type="button"
             onClick={openIncrement}
             aria-label="Seleccionar incremento de porcentaje"
-            className="inline-flex min-h-12 items-center gap-2 rounded-full border border-ember/40 bg-ember/10 px-4 text-sm font-semibold text-ember"
+            className="inline-flex min-h-12 items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 text-sm font-semibold text-primary"
           >
             <span className="hidden sm:inline">≡</span>
             <span>{increment} %</span>
@@ -242,7 +242,7 @@ export function BarbellCalculator({
                   aria-label={`${row.pct} por ciento, ${row.weight} ${unit === "KG" ? "kilos" : "libras"}, toca para ver discos`}
                   className="flex w-full items-center justify-between px-4 py-4 text-left hover:bg-surface"
                 >
-                  <span className="font-display text-xl font-extrabold text-ember">{row.pct}%</span>
+                  <span className="font-display text-xl font-extrabold text-primary">{row.pct}%</span>
                   <span className="flex items-center gap-2">
                     <span className="font-display text-2xl font-extrabold text-text-primary">
                       {row.weight}
@@ -278,8 +278,8 @@ export function BarbellCalculator({
                     onClick={() => setIncrementDraft(opt)}
                     className="flex w-full items-center justify-between px-4 py-4 text-left hover:bg-card"
                   >
-                    <span className={`text-lg ${incrementDraft === opt ? "text-ember font-semibold" : "text-text-primary"}`}>{opt}%</span>
-                    {incrementDraft === opt && <Check className="h-5 w-5 text-ember" />}
+                    <span className={`text-lg ${incrementDraft === opt ? "text-primary font-semibold" : "text-text-primary"}`}>{opt}%</span>
+                    {incrementDraft === opt && <Check className="h-5 w-5 text-primary" />}
                   </button>
                 </li>
               ))}
@@ -292,7 +292,7 @@ export function BarbellCalculator({
               >
                 Cancelar
               </button>
-              <button type="button" onClick={confirmIncrement} className="min-h-12 bg-card font-semibold text-ember">
+              <button type="button" onClick={confirmIncrement} className="min-h-12 bg-card font-semibold text-primary">
                 Listo
               </button>
             </div>
@@ -319,7 +319,7 @@ export function BarbellCalculator({
               <X className="h-4 w-4" />
             </button>
             <div className="flex items-baseline justify-center gap-3 pr-8">
-              <span className="font-display text-3xl font-extrabold text-ember">{selectedRow.pct}%</span>
+              <span className="font-display text-3xl font-extrabold text-primary">{selectedRow.pct}%</span>
               <span className="font-display text-3xl font-extrabold text-text-primary">
                 {selectedRow.weight}
                 <span className="ml-1 text-base font-medium text-text-muted">{unit.toLowerCase()}</span>
@@ -348,7 +348,7 @@ export function BarbellCalculator({
                         className="flex items-center justify-center rounded-md border border-black/20 text-xs font-bold shadow"
                         style={{
                           background: pl.color,
-                          color: pl.color === "#F9FAFB" || pl.color === "#F3F4F6" || pl.color === "#D1D5DB" ? "#0B0C10" : "#FAFAFA",
+                          color: pl.color === "#F9FAFB" || pl.color === "#F3F4F6" || pl.color === "#D1D5DB" ? "#09090B" : "#FAFAFA",
                           width: 28,
                           height: pl.h,
                         }}

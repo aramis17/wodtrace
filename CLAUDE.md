@@ -6,7 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-WodTrace is a mobile-first PWA for logging CrossFit WODs, personal records and progress. There are no user accounts: each browser gets a persistent guest profile. All UI copy is in Spanish. Product scope lives in `IMPLEMENTATION_PLAN.md`; the visual system ("Forge Dark": colors, Barlow Condensed headings + Inter body, 48px touch targets) lives in `Design.md`. `WebAppMockup/` holds the original reference mockups.
+WodTrace is a mobile-first PWA for logging CrossFit WODs, personal records and progress. Anonymous visitors browse a shared demo profile; signing in (Supabase Auth) gives an athlete their own profile and lets them join a box or coach and follow the daily programming assigned to them. All UI copy is in Spanish. Product scope lives in `IMPLEMENTATION_PLAN.md`; the visual system lives in `Design.md`: "Zinc Teal", Barlow Condensed headings with Inter body, and 48px touch targets. Use the semantic color tokens from `src/app/globals.css`, never raw hex:
+- `primary` (teal) fills take `text-on-primary`.
+- Errors and destructive actions use `danger`, never `primary`.
+- PRs and achievements use `gold`. `WebAppMockup/` holds the original reference mockups.
 
 Stack: Next.js 16 (App Router, React 19), TypeScript, Tailwind CSS v4, Prisma 7 on PostgreSQL (Supabase), Supabase Storage, Vitest.
 
@@ -25,27 +28,36 @@ npm run db:seed        # run prisma/seed.ts
 npm run db:generate    # regenerate Prisma client
 ```
 
-Setup: copy `.env.example` to `.env` and set `DATABASE_URL` (pooled) and `GUEST_SESSION_SECRET`. Supabase Storage vars are optional.
+Setup: copy `.env.example` to `.env` and set `DATABASE_URL` (pooled) and `GUEST_SESSION_SECRET`. Accounts need `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY`; without them the app stays demo-only. Supabase Storage vars are optional.
 
 ## Architecture
 
 **Prisma 7 specifics.** The client is generated into `src/generated/prisma` (generator `prisma-client`, not the legacy `prisma-client-js`) and imported from `@/generated/prisma/client`. The connection URL comes from `prisma.config.ts`, not the schema's `datasource` block. Runtime uses the `@prisma/adapter-pg` driver adapter via the singleton in `src/lib/db.ts`. After editing `prisma/schema.prisma`, run `npm run db:generate` (it also runs on `postinstall`/`build`).
 
-**Guest session flow.** This is the core cross-cutting mechanism:
-1. The cookie `wt_guest` holds an HS256 JWT (`src/lib/guest-token.ts`) containing the guest id and a random raw token. The DB stores only `sha256(rawToken)` in `GuestProfile.tokenHash`, and both must match.
-2. Server components can't set cookies, so `RootLayout` calls `getGuestOrNull()`. If that returns null, it renders `<GuestBootstrap>` (client), which calls `GET /api/guest/bootstrap` to create the profile and set the cookie, then calls `router.refresh()`.
-3. Pages call `getGuestOrNull()` and render `<GuestLoading />` (`src/lib/guest-page.tsx`) when it returns null. Server actions call `requireGuest()`, which throws if there is no guest.
-4. `src/proxy.ts` is Next 16's replacement for `middleware.ts`. It is currently a no-op passthrough and does not mint cookies, despite a stale comment in `guest.ts`.
+**Profile resolution.** This is the core cross-cutting mechanism. Everything is keyed by `GuestProfile.id` (`guestId`), for anonymous visitors and accounts alike:
+1. `ensureGuestProfile()` (`src/lib/guest.ts`, request-cached) first looks for the profile whose `userId` matches the Supabase Auth user (`getAuthUser()` in `src/lib/supabase/server.ts`). Otherwise it falls back to the `wt_guest` cookie: an HS256 JWT (`src/lib/guest-token.ts`) holding the profile id and a raw token, checked against `sha256(rawToken)` in `GuestProfile.tokenHash`. A cookie for an account-linked profile only counts while that account is signed in.
+2. Anonymous visitors all share the seeded demo profile (`DEMO_GUEST_ID`, `prisma/seed-demo.ts`). Server components can't set cookies, so when `RootLayout` finds neither the demo nor an account profile it renders `<GuestBootstrap>`. That calls `GET /api/guest/bootstrap`, which sets the demo cookie (or ensures the account's profile), then calls `router.refresh()`.
+3. Login is email OTP or magic link (`src/lib/actions/auth.ts`, `/login`, `/auth/callback`). `linkProfileToUser` (`src/lib/account.ts`) creates the account's profile or adopts a private legacy guest profile. **It must never adopt the demo profile.**
+4. Pages call `getGuestOrNull()` and render `<GuestLoading />` when it returns null. Server actions call `requireGuest()`, or `requireAccount()` when an account is needed (all team features).
+5. `src/proxy.ts` (Next 16's replacement for `middleware.ts`) only refreshes the Supabase session cookie.
 
-**Data ownership.** `Workout` and `PersonalRecord` rows are either seed rows (`isSeed: true`, `guestId` null) or guest-owned custom rows (`isCustom: true`, `guestId` set). Queries must scope with `OR: [{ isSeed: true }, { guestId: guest.id }]`. Results, attempts, favorites and media are always guest-scoped. `Favorite` is polymorphic (`targetType` + `targetId`). `resetGuestData` in `src/lib/guest.ts` defines what a reset wipes.
+**Data ownership.** `Workout` and `PersonalRecord` rows are either seed rows (`isSeed: true`, `guestId` null) or guest-owned custom rows (`isCustom: true`, `guestId` set). Library listings scope with `OR: [{ isSeed: true }, { guestId: guest.id }]`. Opening or logging a single workout uses `visibleWorkoutWhere(profileId)` (`src/lib/teams.ts`), which also admits team WODs. Results, attempts, favorites and media are always guest-scoped. `Favorite` is polymorphic (`targetType` + `targetId`). `resetGuestData` in `src/lib/guest.ts` defines what a reset wipes.
 
-**Mutations.** Forms use Server Actions in `src/lib/actions/*.ts` (`"use server"`). They read `FormData`, validate, and return `{ error }` on failure rather than throwing. On success they call `revalidatePath`. Data pages use `export const dynamic = "force-dynamic"` and query Prisma directly.
+**Boxes and coaches.**
+- A `Team` (`kind` `BOX` | `COACH`) has exactly one owner (`Team.ownerId`), the only one who programs. `TeamMember` rows are always students (`PENDING` until the owner approves); boxes never have extra coaches.
+- Students join with `Team.joinCode`.
+- A `ProgrammingDay` (Postgres `DATE`, handled as `"YYYY-MM-DD"` keys in `src/lib/team-rules.ts`) holds ordered `ProgrammingBlock`s. `assigneeId` null means the whole team; set means one athlete, and that is only allowed in `COACH` teams. Uniqueness per (team, date, assignee) is enforced in code.
+- A scored block owns a `Workout` with `teamId` set, so logging reuses the normal result flow. `logWorkoutResult` stamps `programmingBlockId` from the workout's block, which feeds the daily leaderboard (`rankLeaderboard`).
+- Athlete UI lives under `/box`; owner UI lives under `/coach/[teamId]`.
+
+**Mutations.** Forms use Server Actions in `src/lib/actions/*.ts` (`"use server"`). They read `FormData`, validate, and return `{ error }` on failure rather than throwing. `<ActionForm>` (`src/components/action-form.tsx`) renders that `{ error }`/`{ message }` inline. On success they call `revalidatePath`. Data pages use `export const dynamic = "force-dynamic"` and query Prisma directly.
 
 **Domain logic (pure, unit-tested) in `src/lib`:**
 - `scoring.ts`: score types `TIME | REPS_TIME | WEIGHT | AMRAP | CUSTOM`. Handles time parsing, `formatScore`, and best-result selection (`isBetterScore`/`selectBestResult`), where lower time is better and higher weight/reps is better.
-- `units.ts`: weight is always stored in kg (`weightKg`). Convert at input/display using the guest's `Preference.weightUnit`.
+- `units.ts`: weight is always stored in kg (`weightKg`). It is displayed and entered in **lb by default** (`DEFAULT_WEIGHT_UNIT`). Resolve a profile's unit with `preferredWeightUnit(preference)`, never with a hand-written fallback, and convert only at input and display.
 - `timers.ts`: AMRAP/EMOM/Tabata/For Time state logic used by `timer-panel.tsx`.
 - `barbell.ts` / `barbell-inventory.ts`: plate calculator and user plate inventory.
+- `team-rules.ts`: team permissions, join codes, date keys (`todayKey` honours `APP_TIME_ZONE`), and leaderboard ranking.
 
 **Photos.** `src/lib/storage.ts` uploads to Supabase Storage when `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are set. Otherwise it writes to `public/uploads/` (dev fallback).
 
@@ -56,3 +68,8 @@ Setup: copy `.env.example` to `.env` and set `DATABASE_URL` (pooled) and `GUEST_
 ## OpenSpec
 
 Feature work follows OpenSpec's spec-driven flow: `openspec/changes/<change>/` contains `proposal.md`, `design.md`, `tasks.md` and `specs/`. Completed changes move to `openspec/changes/archive/`.
+
+<!-- added by harness 2026-10-06 -->
+## Knowledge map
+
+Read first: `02-DOCS/wiki/harness/user-profile.md` · `02-DOCS/wiki/sdd/constitution.md` (v1.0.0, obey it). Full index → `02-DOCS/wiki/index.md`.

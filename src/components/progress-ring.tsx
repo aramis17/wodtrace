@@ -35,16 +35,16 @@ export function ProgressRing({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="url(#emberGrad)"
+          stroke="url(#primaryGrad)"
           strokeWidth={stroke}
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
         />
         <defs>
-          <linearGradient id="emberGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#FF3D23" />
-            <stop offset="100%" stopColor="#FF6B35" />
+          <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="var(--primary)" />
+            <stop offset="100%" stopColor="var(--primary-hover)" />
           </linearGradient>
         </defs>
       </svg>

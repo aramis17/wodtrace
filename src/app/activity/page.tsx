@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { deleteWorkoutResult } from "@/lib/actions/results";
 import { deletePRAttempt } from "@/lib/actions/prs";
 import type { ScoreType } from "@/lib/types";
+import { preferredWeightUnit } from "@/lib/units";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +31,7 @@ export default async function ActivityPage({
   const { filter = "all", date } = await searchParams;
   const guest = await getGuestOrNull();
   if (!guest) return <GuestLoading />;
-  const unit = guest.preference?.weightUnit === "LB" ? "LB" : "KG";
+  const unit = preferredWeightUnit(guest.preference);
 
   const dateFilter = date
     ? {
@@ -135,7 +136,7 @@ export default async function ActivityPage({
             className={cn(
               "min-h-12 shrink-0 rounded-xl px-4 text-sm font-semibold inline-flex items-center",
               filter === f.id
-                ? "bg-ember text-text-primary"
+                ? "bg-primary text-on-primary"
                 : "bg-card border border-border text-text-secondary",
             )}
           >
@@ -190,7 +191,7 @@ export default async function ActivityPage({
                     </div>
                     <p className="text-xs text-text-muted">{item.meta}</p>
                   </Link>
-                  <p className="font-display text-lg text-ember">{item.score}</p>
+                  <p className="font-display text-lg text-primary">{item.score}</p>
                 </div>
                 <div className="flex justify-end gap-2 border-t border-border pt-2">
                   {item.kind === "wod" ? (
@@ -201,21 +202,23 @@ export default async function ActivityPage({
                         </Button>
                       </Link>
                       <ConfirmDelete
+                        successMessage="Resultado eliminado"
                         action={async () => {
                           "use server";
                           const fd = new FormData();
                           fd.set("id", item.id);
-                          await deleteWorkoutResult(fd);
+                          return deleteWorkoutResult(fd);
                         }}
                       />
                     </>
                   ) : (
                     <ConfirmDelete
+                      successMessage="Intento eliminado"
                       action={async () => {
                         "use server";
                         const fd = new FormData();
                         fd.set("id", item.id);
-                        await deletePRAttempt(fd);
+                        return deletePRAttempt(fd);
                       }}
                     />
                   )}

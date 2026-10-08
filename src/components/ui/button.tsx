@@ -11,11 +11,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-ember text-text-primary shadow-[0_4px_14px_rgba(255,61,35,0.35)] hover:bg-flame active:scale-[0.98]",
+    "bg-primary text-on-primary font-semibold shadow-[0_4px_14px_color-mix(in_srgb,var(--primary)_30%,transparent)] hover:bg-primary-hover active:scale-[0.98]",
   secondary:
     "bg-card text-text-primary border border-border hover:bg-surface",
   ghost: "bg-transparent text-text-secondary hover:bg-card hover:text-text-primary",
-  danger: "bg-ember/15 text-ember border border-ember/30 hover:bg-ember/25",
+  danger: "bg-danger/15 text-danger border border-danger/30 hover:bg-danger/25",
 };
 
 const sizes: Record<Size, string> = {
@@ -30,7 +30,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ref={ref}
       type={type}
       className={cn(
-        "inline-flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember",
+        "inline-flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
         variants[variant],
         sizes[size],
         className,

@@ -11,13 +11,16 @@ import { GuestLoading } from "@/lib/guest-page";
 import { formatScore } from "@/lib/scoring";
 import { formatDateEs } from "@/lib/utils";
 import type { ScoreType } from "@/lib/types";
+import { programmingForAthlete } from "@/lib/teams";
+import { BLOCK_KIND_LABELS, todayKey } from "@/lib/team-rules";
+import { preferredWeightUnit } from "@/lib/units";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const guest = await getGuestOrNull();
   if (!guest) return <GuestLoading />;
-  const unit = guest.preference?.weightUnit === "LB" ? "LB" : "KG";
+  const unit = preferredWeightUnit(guest.preference);
   const levelIndex = guest.preference?.athleticLevelIndex ?? 0;
 
   const [levels, results, prAttempts, featured, resultCount, prCount] =
@@ -36,6 +39,10 @@ export default async function HomePage() {
       prisma.workoutResult.count({ where: { guestId: guest.id } }),
       prisma.personalRecordAttempt.count({ where: { guestId: guest.id } }),
     ]);
+
+  const assigned = guest.userId
+    ? await programmingForAthlete(guest.id, todayKey())
+    : [];
 
   const level = levels[levelIndex] ?? levels[0];
   const weekAgo = new Date();
@@ -59,40 +66,77 @@ export default async function HomePage() {
             {guest.alias}
           </h1>
         </div>
-        <Badge tone="ember">Demo compartida</Badge>
+        <Badge tone="primary">Demo compartida</Badge>
       </header>
 
-      <section
-        className="overflow-hidden rounded-2xl border border-border p-5"
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(255,61,35,0.25) 0%, rgba(255,107,53,0.12) 50%, #1C1F27 100%)",
-        }}
-      >
-        <p className="text-xs font-semibold uppercase tracking-widest text-ember">
-          WOD destacado
-        </p>
-        {featured ? (
-          <>
-            <h2 className="mt-1 font-display text-3xl uppercase text-text-primary">
-              {featured.name}
-            </h2>
-            <p className="mt-2 line-clamp-2 text-sm text-text-secondary">
-              {featured.description}
+      {assigned.map((day) => (
+        <section
+          key={day.id}
+          aria-labelledby={`today-${day.id}`}
+          className="space-y-3 rounded-2xl border border-border bg-card p-5"
+        >
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary-hover">
+              Hoy en {day.team.name}
             </p>
-            <Link
-              href={`/wods/${featured.id}`}
-              className="mt-4 inline-flex min-h-12 items-center gap-1 text-sm font-semibold text-ember"
-            >
-              Ver y registrar <ChevronRight className="h-4 w-4" />
-            </Link>
-          </>
-        ) : (
-          <p className="mt-2 text-sm text-text-muted">
-            Ejecuta las semillas para cargar WODs.
+            {day.assigneeId ? <Badge tone="info">Para ti</Badge> : null}
+          </div>
+          <h2
+            id={`today-${day.id}`}
+            className="font-display text-3xl uppercase text-text-primary"
+          >
+            {day.title ?? day.blocks.find((b) => b.workout)?.title ?? "Programación"}
+          </h2>
+          <ul className="space-y-1 text-sm text-text-secondary">
+            {day.blocks.map((b) => (
+              <li key={b.id}>
+                <span className="text-text-muted">{BLOCK_KIND_LABELS[b.kind]} · </span>
+                {b.title}
+              </li>
+            ))}
+          </ul>
+          <Link
+            href={`/box/${day.teamId}`}
+            className="inline-flex min-h-12 w-full items-center justify-center gap-1 rounded-xl bg-primary px-4 text-sm font-semibold text-on-primary hover:bg-primary-hover"
+          >
+            Ver y registrar <ChevronRight className="h-4 w-4" />
+          </Link>
+        </section>
+      ))}
+
+      {assigned.length === 0 ? (
+        <section
+          className="overflow-hidden rounded-2xl border border-border p-5"
+          style={{
+            background:
+              "linear-gradient(135deg, color-mix(in srgb, var(--primary) 25%, transparent) 0%, color-mix(in srgb, var(--primary-hover) 10%, transparent) 50%, var(--card) 100%)",
+          }}
+        >
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary">
+            WOD destacado
           </p>
-        )}
-      </section>
+          {featured ? (
+            <>
+              <h2 className="mt-1 font-display text-3xl uppercase text-text-primary">
+                {featured.name}
+              </h2>
+              <p className="mt-2 line-clamp-2 text-sm text-text-secondary">
+                {featured.description}
+              </p>
+              <Link
+                href={`/wods/${featured.id}`}
+                className="mt-4 inline-flex min-h-12 items-center gap-1 text-sm font-semibold text-primary"
+              >
+                Ver y registrar <ChevronRight className="h-4 w-4" />
+              </Link>
+            </>
+          ) : (
+            <p className="mt-2 text-sm text-text-muted">
+              Ejecuta las semillas para cargar WODs.
+            </p>
+          )}
+        </section>
+      ) : null}
 
       <section className="grid grid-cols-3 gap-3">
         <Card className="text-center">
@@ -143,7 +187,7 @@ export default async function HomePage() {
           </h2>
           <Link
             href="/activity"
-            className="text-sm font-medium text-ember min-h-12 inline-flex items-center"
+            className="text-sm font-medium text-primary min-h-12 inline-flex items-center"
           >
             Ver todo
           </Link>
@@ -169,7 +213,7 @@ export default async function HomePage() {
               return (
                 <li key={r.id}>
                   <Link href={`/wods/${r.workoutId}`}>
-                    <Card className="flex items-center justify-between gap-3 transition-colors hover:border-ember/40">
+                    <Card className="flex items-center justify-between gap-3 transition-colors hover:border-primary/40">
                       <div>
                         <p className="font-semibold text-text-primary">
                           {r.workout.name}
@@ -179,7 +223,7 @@ export default async function HomePage() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-display text-lg text-ember">
+                        <p className="font-display text-lg text-primary">
                           {score.primary}
                         </p>
                         {score.secondary ? (

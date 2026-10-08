@@ -2,6 +2,8 @@
 
 import { Star } from "lucide-react";
 import { useTransition } from "react";
+import { toast } from "sonner";
+import { notifyThrown } from "./toaster";
 import { cn } from "@/lib/utils";
 
 export function FavoriteButton({
@@ -23,7 +25,12 @@ export function FavoriteButton({
       disabled={pending}
       onClick={() =>
         start(async () => {
-          await onToggle();
+          try {
+            await onToggle();
+            toast.success(favorited ? "Quitado de favoritos" : "Añadido a favoritos");
+          } catch (e) {
+            notifyThrown(e);
+          }
         })
       }
       className={cn(

@@ -2,12 +2,13 @@ import Link from "next/link";
 import { X } from "lucide-react";
 import { InventoryEditor } from "@/components/inventory-editor";
 import { getGuestOrNull } from "@/lib/guest";
+import { preferredWeightUnit } from "@/lib/units";
 
 export const dynamic = "force-dynamic";
 
 export default async function InventoryPage() {
   const guest = await getGuestOrNull();
-  const unit: "KG" | "LB" = guest?.preference?.weightUnit === "LB" ? "LB" : "KG";
+  const unit: "KG" | "LB" = preferredWeightUnit(guest?.preference);
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">

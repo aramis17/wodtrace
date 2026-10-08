@@ -25,3 +25,9 @@ export function parseDateInput(value: string): Date {
   const [y, m, d] = value.split("-").map(Number);
   return new Date(y, m - 1, d, 12, 0, 0);
 }
+
+/** Only same-site relative paths are allowed as redirect destinations. */
+export function safeNextPath(value: unknown): string {
+  const next = typeof value === "string" ? value : "";
+  return next.startsWith("/") && !next.startsWith("//") ? next : "/";
+}

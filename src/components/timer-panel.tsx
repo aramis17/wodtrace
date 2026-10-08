@@ -121,7 +121,7 @@ export function TimerPanel() {
             className={cn(
               "min-h-12 rounded-xl px-4 text-sm font-semibold",
               mode === m
-                ? "bg-ember text-text-primary"
+                ? "bg-primary text-on-primary"
                 : "bg-card text-text-secondary border border-border",
             )}
           >
@@ -280,7 +280,7 @@ export function TimerPanel() {
         <button
           type="button"
           onClick={() => setReps((r) => r + 1)}
-          className="min-h-12 min-w-12 rounded-xl bg-ember text-xl text-text-primary"
+          className="min-h-12 min-w-12 rounded-xl bg-primary text-xl text-on-primary"
           aria-label="Sumar rep"
         >
           +
@@ -292,7 +292,7 @@ export function TimerPanel() {
           type="checkbox"
           checked={keepAwake}
           onChange={(e) => setKeepAwake(e.target.checked)}
-          className="h-5 w-5 accent-ember"
+          className="h-5 w-5 accent-primary"
         />
         Mantener pantalla activa
       </label>

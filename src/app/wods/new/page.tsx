@@ -1,20 +1,11 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ActionForm, SubmitButton } from "@/components/action-form";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
 import { createCustomWorkout } from "@/lib/actions/workouts";
 import { SCORE_TYPE_LABELS, type ScoreType } from "@/lib/types";
 
 export default function NewWodPage() {
-  async function action(formData: FormData) {
-    "use server";
-    const res = await createCustomWorkout(formData);
-    if (res && "id" in res && res.id) {
-      redirect(`/wods/${res.id}`);
-    }
-  }
-
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-2">
@@ -29,7 +20,7 @@ export default function NewWodPage() {
           Nuevo WOD
         </h1>
       </div>
-      <form action={action} className="space-y-4">
+      <ActionForm action={createCustomWorkout} className="space-y-4">
         <div>
           <Label htmlFor="name">Nombre</Label>
           <Input id="name" name="name" required />
@@ -60,10 +51,10 @@ export default function NewWodPage() {
           <Label htmlFor="scaledNotes">Notas escalado</Label>
           <Input id="scaledNotes" name="scaledNotes" />
         </div>
-        <Button type="submit" className="w-full">
+        <SubmitButton className="w-full" pendingLabel="Creando…">
           Crear
-        </Button>
-      </form>
+        </SubmitButton>
+      </ActionForm>
     </div>
   );
 }

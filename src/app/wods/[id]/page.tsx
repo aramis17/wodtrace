@@ -9,6 +9,7 @@ import { FavoriteButton } from "@/components/favorite-button";
 import { ScoreChart } from "@/components/score-chart";
 import { prisma } from "@/lib/db";
 import { getGuestOrNull } from "@/lib/guest";
+import { visibleWorkoutWhere } from "@/lib/teams";
 import { GuestLoading } from "@/lib/guest-page";
 import { toggleWorkoutFavorite } from "@/lib/actions/workouts";
 import {
@@ -19,6 +20,7 @@ import {
 import { formatDateEs } from "@/lib/utils";
 import { SCORE_TYPE_LABELS, type ScoreType } from "@/lib/types";
 import { getSignedPhotoUrl } from "@/lib/storage";
+import { preferredWeightUnit } from "@/lib/units";
 
 export const dynamic = "force-dynamic";
 
@@ -30,12 +32,12 @@ export default async function WodDetailPage({
   const { id } = await params;
   const guest = await getGuestOrNull();
   if (!guest) return <GuestLoading />;
-  const unit = guest.preference?.weightUnit === "LB" ? "LB" : "KG";
+  const unit = preferredWeightUnit(guest.preference);
 
   const workout = await prisma.workout.findFirst({
     where: {
       id,
-      OR: [{ isSeed: true }, { guestId: guest.id }],
+      ...visibleWorkoutWhere(guest.id),
     },
     include: { category: true },
   });
@@ -122,7 +124,7 @@ export default async function WodDetailPage({
         ) : null}
         {workout.rxNotes ? (
           <p className="text-sm">
-            <span className="text-ember font-semibold">Rx · </span>
+            <span className="text-primary font-semibold">Rx · </span>
             {workout.rxNotes}
           </p>
         ) : null}
@@ -203,7 +205,7 @@ export default async function WodDetailPage({
                       />
                     ) : null}
                     <div className="min-w-0 flex-1">
-                      <p className="font-display text-lg text-ember">
+                      <p className="font-display text-lg text-primary">
                         {score.primary}
                       </p>
                       <p className="text-xs text-text-muted">

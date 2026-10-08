@@ -10,3 +10,18 @@
 - Opciones: aplicar el plan de auditoría / ajustarlo.
 - Elección: aplicar. Tools creadas por evidencia: SUPABASE (deps @supabase/*), DB_CLI (dep pg + DATABASE_URL). Sin carpetas legacy ni borrados.
 - Por qué: es lo que el código ya usa; sin herramientas especulativas.
+
+## [2026-10-07] constitución v1.0.0 ratificada
+
+- Requisitos: reglas no negociables para las fases SDD.
+- Opciones elegidas: tests obligatorios solo en lógica pura de `src/lib`; autoría git solo humana (sin Co-Authored-By); sin presupuesto de rendimiento por ahora.
+- Enmienda previa a ratificar: principio 11 → peso en **lb por defecto** al mostrar/introducir (almacenamiento sigue en kg). Implementado en FTD `ftd/libras-por-defecto.md`.
+- Por qué: el usuario entrena y piensa en libras; cambiar el almacenamiento no aportaba nada visible y arriesgaba redondeos.
+
+## [2026-10-08] paleta Zinc Teal
+
+- Requisitos: colores que motiven al atleta, modo oscuro, contraste AA.
+- Opciones presentadas: Volt (lima), Forja (brasa), Pulso (fucsia/cian), Zinc (naranja, aportada por el usuario) y Zinc con acento teal-400.
+- Elección: **Zinc Teal**. Base zinc, un solo acento teal `#00D5BE` con texto oscuro, dorado para los PR, índigo para info y `danger` rojo separado del acento.
+- Por qué: el PR dorado destaca como único color cálido; mejor contraste (10.7:1); identidad propia frente al naranja/rojo habitual de las apps de fitness.
+- Constitución v1.1.0: el principio 19 queda reemplazado por el 23. FTD: `ftd/paleta-zinc-teal.md`.

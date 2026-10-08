@@ -1,5 +1,16 @@
 export type WeightUnit = "KG" | "LB";
 
+/** Unit shown and asked for when a profile has not chosen one. Storage is always kg. */
+export const DEFAULT_WEIGHT_UNIT: WeightUnit = "LB";
+
+/** The profile's display unit; anything other than an explicit "KG" falls back to the default. */
+export function preferredWeightUnit(
+  preference: { weightUnit?: string | null } | null | undefined,
+): WeightUnit {
+  const unit = preference?.weightUnit;
+  return unit === "KG" || unit === "LB" ? unit : DEFAULT_WEIGHT_UNIT;
+}
+
 const LB_PER_KG = 2.2046226218;
 
 export function kgToLb(kg: number): number {

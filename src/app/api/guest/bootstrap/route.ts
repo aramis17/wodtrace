@@ -1,5 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
+import { linkProfileToUser } from "@/lib/account";
+import { getAuthUser } from "@/lib/supabase/server";
 import {
   COOKIE_MAX_AGE,
   DEMO_GUEST_ID,
@@ -9,8 +11,18 @@ import {
   signGuestToken,
 } from "@/lib/guest-token";
 
-export async function GET() {
+/** Signed-in users get their own profile; everyone else browses the shared demo profile. */
+export async function GET(request: NextRequest) {
   try {
+    const user = await getAuthUser();
+    if (user) {
+      const guestId = await linkProfileToUser(
+        user,
+        request.cookies.get(GUEST_COOKIE)?.value,
+      );
+      return NextResponse.json({ ok: true, guestId });
+    }
+
     const profile = await prisma.guestProfile.findUnique({
       where: { id: DEMO_GUEST_ID },
     });
@@ -28,7 +40,6 @@ export async function GET() {
       maxAge: COOKIE_MAX_AGE,
     });
     return res;
-
   } catch (e) {
     console.error(e);
     return NextResponse.json(

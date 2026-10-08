@@ -3,7 +3,9 @@ import { Barlow_Condensed, Inter } from "next/font/google";
 import { BottomNav, SideNav } from "@/components/nav";
 import { ThemeProvider } from "@/components/theme-provider";
 import { GuestBootstrap } from "@/components/guest-bootstrap";
+import { Toaster } from "@/components/toaster";
 import { getGuestOrNull } from "@/lib/guest";
+import { ownsAnyTeam } from "@/lib/teams";
 import { DEMO_GUEST_ID } from "@/lib/guest-token";
 import "./globals.css";
 
@@ -38,8 +40,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0B0C10" },
-    { media: "(prefers-color-scheme: light)", color: "#F4F5F7" },
+    { media: "(prefers-color-scheme: dark)", color: "#09090B" },
+    { media: "(prefers-color-scheme: light)", color: "#FAFAFA" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -54,10 +56,13 @@ export default async function RootLayout({
 }>) {
   let theme = "dark";
   let needsBootstrap = true;
+  let showCoach = false;
   try {
     const guest = await getGuestOrNull();
-    if (guest?.id === DEMO_GUEST_ID) {
+    // Anonymous visitors are moved onto the shared demo; accounts keep their own profile.
+    if (guest && (guest.id === DEMO_GUEST_ID || guest.userId)) {
       needsBootstrap = false;
+      showCoach = Boolean(guest.userId) && (await ownsAnyTeam(guest.id));
       const t = guest.preference?.theme;
       if (t === "LIGHT") theme = "light";
       else if (t === "SYSTEM") theme = "system";
@@ -76,12 +81,13 @@ export default async function RootLayout({
         <ThemeProvider defaultTheme={theme}>
           <GuestBootstrap needsBootstrap={needsBootstrap} />
           <div className="flex min-h-full">
-            <SideNav />
+            <SideNav showCoach={showCoach} />
             <div className="mx-auto flex w-full max-w-lg flex-1 flex-col md:max-w-xl">
               <main className="flex-1 px-4 pt-6 pb-nav">{children}</main>
             </div>
           </div>
           <BottomNav />
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

@@ -1,4 +1,5 @@
 import type { FormattedScore, ScorePayload, ScoreType } from "./types";
+import { DEFAULT_WEIGHT_UNIT } from "./units";
 
 export function parseTimeToSeconds(input: string): number | null {
   const trimmed = input.trim();
@@ -94,7 +95,7 @@ export function formatScore(
   payload: ScorePayload,
   opts?: { weightUnit?: "KG" | "LB"; weightLabel?: string },
 ): FormattedScore {
-  const unit = opts?.weightUnit ?? "KG";
+  const unit = opts?.weightUnit ?? DEFAULT_WEIGHT_UNIT;
   switch (scoreType) {
     case "TIME":
       return {

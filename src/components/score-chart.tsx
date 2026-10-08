@@ -10,6 +10,7 @@ import {
   YAxis,
 } from "recharts";
 import { formatScore } from "@/lib/scoring";
+import { DEFAULT_WEIGHT_UNIT } from "@/lib/units";
 import type { ScoreType } from "@/lib/types";
 
 export interface ChartPoint {
@@ -27,7 +28,7 @@ export interface ChartPoint {
 export function ScoreChart({
   data,
   scoreType,
-  weightUnit = "KG",
+  weightUnit = DEFAULT_WEIGHT_UNIT,
 }: {
   data: ChartPoint[];
   scoreType: ScoreType;
@@ -50,15 +51,15 @@ export function ScoreChart({
     <div className="h-52 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-          <CartesianGrid stroke="#343842" strokeDasharray="3 3" />
+          <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
           <XAxis
             dataKey="label"
-            tick={{ fill: "#858995", fontSize: 11 }}
-            axisLine={{ stroke: "#343842" }}
+            tick={{ fill: "var(--text-muted)", fontSize: 11 }}
+            axisLine={{ stroke: "var(--border)" }}
             tickLine={false}
           />
           <YAxis
-            tick={{ fill: "#858995", fontSize: 11 }}
+            tick={{ fill: "var(--text-muted)", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
             width={48}
@@ -74,10 +75,10 @@ export function ScoreChart({
           />
           <Tooltip
             contentStyle={{
-              background: "#1C1F27",
-              border: "1px solid #343842",
+              background: "var(--card)",
+              border: "1px solid var(--border)",
               borderRadius: 12,
-              color: "#FAFAFA",
+              color: "var(--text-primary)",
             }}
             formatter={(_value, _name, item) => {
               const p = item.payload as ChartPoint;
@@ -91,9 +92,9 @@ export function ScoreChart({
           <Line
             type="monotone"
             dataKey="y"
-            stroke="#FF3D23"
+            stroke="var(--primary)"
             strokeWidth={2.5}
-            dot={{ r: 4, fill: "#FF6B35", strokeWidth: 0 }}
+            dot={{ r: 4, fill: "var(--primary)", strokeWidth: 0 }}
             activeDot={{ r: 6 }}
           />
         </LineChart>

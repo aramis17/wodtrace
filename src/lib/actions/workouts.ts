@@ -39,7 +39,11 @@ export async function createCustomWorkout(formData: FormData) {
 
   revalidatePath("/wods");
   revalidatePath(`/wods/${workout.id}`);
-  return { id: workout.id };
+  return {
+    id: workout.id,
+    message: "WOD creado",
+    redirectTo: `/wods/${workout.id}`,
+  };
 }
 
 export async function updateCustomWorkout(formData: FormData) {
@@ -68,7 +72,7 @@ export async function updateCustomWorkout(formData: FormData) {
 
   revalidatePath("/wods");
   revalidatePath(`/wods/${id}`);
-  return { id };
+  return { id, message: "WOD actualizado", redirectTo: `/wods/${id}` };
 }
 
 export async function deleteCustomWorkout(formData: FormData) {
@@ -81,7 +85,7 @@ export async function deleteCustomWorkout(formData: FormData) {
 
   await prisma.workout.delete({ where: { id } });
   revalidatePath("/wods");
-  return { ok: true };
+  return { message: "WOD eliminado", redirectTo: "/wods" };
 }
 
 export async function toggleWorkoutFavorite(workoutId: string) {

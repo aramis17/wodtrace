@@ -6,7 +6,7 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
     <input
       ref={ref}
       className={cn(
-        "min-h-12 w-full rounded-xl border border-border bg-surface px-4 text-sm text-text-primary placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember",
+        "min-h-12 w-full rounded-xl border border-border bg-surface px-4 text-sm text-text-primary placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
         className,
       )}
       {...props}
@@ -34,7 +34,7 @@ export function Textarea({
   return (
     <textarea
       className={cn(
-        "min-h-24 w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember",
+        "min-h-24 w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
         className,
       )}
       {...props}
@@ -50,7 +50,7 @@ export function Select({
   return (
     <select
       className={cn(
-        "min-h-12 w-full rounded-xl border border-border bg-surface px-4 text-sm text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember",
+        "min-h-12 w-full rounded-xl border border-border bg-surface px-4 text-sm text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
         className,
       )}
       {...props}

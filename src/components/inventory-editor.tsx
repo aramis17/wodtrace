@@ -93,7 +93,7 @@ export function InventoryEditor({ defaultUnit = "LB" }: { defaultUnit?: "KG" | "
                     aria-label={`Decrementar ${w} ${unit}`}
                     disabled={count <= 0}
                     onClick={() => adjustPlate(w, -1)}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-ember disabled:opacity-30 disabled:text-text-muted"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-primary disabled:opacity-30 disabled:text-text-muted"
                   >
                     <Minus className="h-4 w-4" />
                   </button>
@@ -105,7 +105,7 @@ export function InventoryEditor({ defaultUnit = "LB" }: { defaultUnit?: "KG" | "
                     aria-label={`Incrementar ${w} ${unit}`}
                     disabled={count >= maxPairs}
                     onClick={() => adjustPlate(w, 1)}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-ember disabled:opacity-30"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-primary disabled:opacity-30"
                   >
                     <Plus className="h-4 w-4" />
                   </button>

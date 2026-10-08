@@ -10,6 +10,7 @@ import { GuestLoading } from "@/lib/guest-page";
 import { formatScore, selectBestResult } from "@/lib/scoring";
 import { SCORE_TYPE_LABELS, type ScoreType } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { preferredWeightUnit } from "@/lib/units";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ export default async function PRsPage({
   const { q = "", fav } = await searchParams;
   const guest = await getGuestOrNull();
   if (!guest) return <GuestLoading />;
-  const unit = guest.preference?.weightUnit === "LB" ? "LB" : "KG";
+  const unit = preferredWeightUnit(guest.preference);
 
   const favorites = await prisma.favorite.findMany({
     where: { guestId: guest.id, targetType: "PERSONAL_RECORD" },
@@ -77,7 +78,7 @@ export default async function PRsPage({
           className={cn(
             "inline-flex min-h-12 items-center rounded-xl px-4 text-sm font-semibold",
             fav !== "1"
-              ? "bg-ember text-text-primary"
+              ? "bg-primary text-on-primary"
               : "border border-border bg-card text-text-secondary",
           )}
         >
@@ -88,7 +89,7 @@ export default async function PRsPage({
           className={cn(
             "inline-flex min-h-12 items-center rounded-xl px-4 text-sm font-semibold",
             fav === "1"
-              ? "bg-ember text-text-primary"
+              ? "bg-primary text-on-primary"
               : "border border-border bg-card text-text-secondary",
           )}
         >
@@ -121,7 +122,7 @@ export default async function PRsPage({
             return (
               <li key={pr.id}>
                 <Link href={`/prs/${pr.id}`}>
-                  <Card className="flex items-center justify-between gap-3 transition-colors hover:border-ember/40">
+                  <Card className="flex items-center justify-between gap-3 transition-colors hover:border-primary/40">
                     <div>
                       <div className="flex items-center gap-2">
                         <p className="font-semibold text-text-primary">

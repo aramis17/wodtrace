@@ -2,13 +2,14 @@ import Link from "next/link";
 import { ArrowLeft, Settings } from "lucide-react";
 import { BarbellCalculator } from "@/components/barbell-calculator";
 import { getGuestOrNull } from "@/lib/guest";
+import { preferredWeightUnit } from "@/lib/units";
 
 export const dynamic = "force-dynamic";
 
 export default async function BarbellPage() {
   const guest = await getGuestOrNull();
   const unit: "KG" | "LB" =
-    guest?.preference?.weightUnit === "LB" ? "LB" : "KG";
+    preferredWeightUnit(guest?.preference);
 
   return (
     <div className="space-y-5">

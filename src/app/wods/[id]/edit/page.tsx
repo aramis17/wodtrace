@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ActionForm, SubmitButton } from "@/components/action-form";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
 import { prisma } from "@/lib/db";
 import { getGuestOrNull } from "@/lib/guest";
@@ -27,21 +27,6 @@ export default async function EditWodPage({
   });
   if (!workout) notFound();
 
-  async function save(formData: FormData) {
-    "use server";
-    formData.set("id", id);
-    const res = await updateCustomWorkout(formData);
-    if (res && "id" in res) redirect(`/wods/${id}`);
-  }
-
-  async function remove() {
-    "use server";
-    const fd = new FormData();
-    fd.set("id", id);
-    await deleteCustomWorkout(fd);
-    redirect("/wods");
-  }
-
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-2">
@@ -56,7 +41,8 @@ export default async function EditWodPage({
           Editar WOD
         </h1>
       </div>
-      <form action={save} className="space-y-4">
+      <ActionForm action={updateCustomWorkout} className="space-y-4">
+        <input type="hidden" name="id" value={id} />
         <div>
           <Label htmlFor="name">Nombre</Label>
           <Input id="name" name="name" defaultValue={workout.name} required />
@@ -108,15 +94,19 @@ export default async function EditWodPage({
             defaultValue={workout.scaledNotes ?? ""}
           />
         </div>
-        <Button type="submit" className="w-full">
+        <SubmitButton className="w-full" pendingLabel="Guardando…">
           Guardar
-        </Button>
-      </form>
-      <form action={remove}>
-        <Button type="submit" variant="danger" className="w-full">
+        </SubmitButton>
+      </ActionForm>
+      <ActionForm
+        action={deleteCustomWorkout}
+        confirmMessage={`¿Eliminar ${workout.name}? También se borrarán sus resultados.`}
+      >
+        <input type="hidden" name="id" value={id} />
+        <SubmitButton variant="danger" className="w-full">
           Eliminar WOD
-        </Button>
-      </form>
+        </SubmitButton>
+      </ActionForm>
     </div>
   );
 }

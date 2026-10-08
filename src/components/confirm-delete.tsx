@@ -1,15 +1,20 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
+import { notifyResult, notifyThrown, type ActionResult } from "./toaster";
 
 export function ConfirmDelete({
   action,
   label = "Eliminar",
+  successMessage = "Eliminado",
 }: {
-  action: () => Promise<void>;
+  action: () => Promise<ActionResult>;
   label?: string;
+  successMessage?: string;
 }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, start] = useTransition();
 
@@ -29,7 +34,11 @@ export function ConfirmDelete({
         disabled={pending}
         onClick={() =>
           start(async () => {
-            await action();
+            try {
+              if (notifyResult(await action(), successMessage)) router.refresh();
+            } catch (e) {
+              notifyThrown(e);
+            }
             setOpen(false);
           })
         }

@@ -43,27 +43,51 @@ enum Scaling {
   SCALED
 }
 
+enum TeamKind {
+  COACH
+  BOX
+}
+
+enum MemberStatus {
+  PENDING
+  ACTIVE
+}
+
+enum BlockKind {
+  WARMUP
+  STRENGTH
+  WOD
+  ACCESSORY
+  OTHER
+}
+
 model GuestProfile {
   id        String   @id @default(cuid())
   tokenHash String   @unique
   alias     String   @default("Atleta")
+  /// Supabase Auth user id once the profile is linked to an account.
+  userId    String?  @unique
+  email     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  preference Preference?
-  workouts   Workout[]
-  results    WorkoutResult[]
-  prs        PersonalRecord[]
-  attempts   PersonalRecordAttempt[]
-  favorites  Favorite[]
-  media      MediaAsset[]
+  preference   Preference?
+  ownedTeams   Team[]                  @relation("TeamOwner")
+  memberships  TeamMember[]
+  assignedDays ProgrammingDay[]        @relation("DayAssignee")
+  workouts     Workout[]
+  results      WorkoutResult[]
+  prs          PersonalRecord[]
+  attempts     PersonalRecordAttempt[]
+  favorites    Favorite[]
+  media        MediaAsset[]
 }
 
 model Preference {
   id                 String          @id @default(cuid())
   guestId            String          @unique
   guest              GuestProfile    @relation(fields: [guestId], references: [id], onDelete: Cascade)
-  weightUnit         WeightUnit      @default(KG)
+  weightUnit         WeightUnit      @default(LB)
   theme              ThemePreference @default(DARK)
   locale             String          @default("es")
   keepScreenAwake    Boolean         @default(false)
@@ -71,6 +95,7 @@ model Preference {
   shareUrl           String?
   rateUrl            String?
   athleticLevelIndex Int             @default(0)
+  showOnLeaderboard  Boolean         @default(true)
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
 }
@@ -87,7 +112,7 @@ model WorkoutCategory {
 }
 
 model Workout {
-  id          String           @id @default(cuid())
+  id          String            @id @default(cuid())
   slug        String?
   name        String
   description String
@@ -95,44 +120,52 @@ model Workout {
   scheme      String?
   rxNotes     String?
   scaledNotes String?
-  isSeed      Boolean          @default(false)
-  isCustom    Boolean          @default(false)
+  isSeed      Boolean           @default(false)
+  isCustom    Boolean           @default(false)
   guestId     String?
-  guest       GuestProfile?    @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  guest       GuestProfile?     @relation(fields: [guestId], references: [id], onDelete: Cascade)
   categoryId  String?
-  category    WorkoutCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  category    WorkoutCategory?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  /// Set for WODs programmed by a team owner; visible to the team's active members.
+  teamId      String?
+  team        Team?             @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  block       ProgrammingBlock?
   results     WorkoutResult[]
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 
   @@index([guestId])
+  @@index([teamId])
   @@index([categoryId])
   @@index([name])
 }
 
 model WorkoutResult {
-  id        String       @id @default(cuid())
-  guestId   String
-  guest     GuestProfile @relation(fields: [guestId], references: [id], onDelete: Cascade)
-  workoutId String
-  workout   Workout      @relation(fields: [workoutId], references: [id], onDelete: Cascade)
-  performedAt DateTime
-  scaling   Scaling      @default(RX)
+  id                 String            @id @default(cuid())
+  guestId            String
+  guest              GuestProfile      @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  workoutId          String
+  workout            Workout           @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  performedAt        DateTime
+  scaling            Scaling           @default(RX)
   // Normalized score fields
-  timeSeconds   Int?
-  reps          Int?
-  weightKg      Float?
-  rounds        Int?
-  extraReps     Int?
-  customValue   String?
-  notes         String?
-  mediaId       String?      @unique
-  media         MediaAsset?  @relation(fields: [mediaId], references: [id], onDelete: SetNull)
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  timeSeconds        Int?
+  reps               Int?
+  weightKg           Float?
+  rounds             Int?
+  extraReps          Int?
+  customValue        String?
+  notes              String?
+  mediaId            String?           @unique
+  media              MediaAsset?       @relation(fields: [mediaId], references: [id], onDelete: SetNull)
+  programmingBlockId String?
+  programmingBlock   ProgrammingBlock? @relation(fields: [programmingBlockId], references: [id], onDelete: SetNull)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
 
   @@index([guestId, performedAt])
   @@index([workoutId])
+  @@index([programmingBlockId])
 }
 
 model PersonalRecord {
@@ -183,38 +216,38 @@ model Favorite {
 }
 
 model MediaAsset {
-  id        String         @id @default(cuid())
-  guestId   String
-  guest     GuestProfile   @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  id          String         @id @default(cuid())
+  guestId     String
+  guest       GuestProfile   @relation(fields: [guestId], references: [id], onDelete: Cascade)
   storagePath String
-  mimeType  String
-  sizeBytes Int
-  result    WorkoutResult?
-  createdAt DateTime       @default(now())
+  mimeType    String
+  sizeBytes   Int
+  result      WorkoutResult?
+  createdAt   DateTime       @default(now())
 
   @@index([guestId])
 }
 
 model AthleticLevel {
-  id          String              @id @default(cuid())
-  slug        String              @unique
+  id          String             @id @default(cuid())
+  slug        String             @unique
   name        String
   description String?
-  sortOrder   Int                 @default(0)
+  sortOrder   Int                @default(0)
   color       String?
   standards   AthleticStandard[]
 }
 
 model AthleticStandard {
-  id        String        @id @default(cuid())
-  levelId   String
-  level     AthleticLevel @relation(fields: [levelId], references: [id], onDelete: Cascade)
-  name      String
-  category  String
-  maleValue String?
+  id          String        @id @default(cuid())
+  levelId     String
+  level       AthleticLevel @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  name        String
+  category    String
+  maleValue   String?
   femaleValue String?
-  unit      String?
-  sortOrder Int           @default(0)
+  unit        String?
+  sortOrder   Int           @default(0)
 
   @@index([levelId])
 }
@@ -223,4 +256,73 @@ model SeedMeta {
   id        String   @id @default("main")
   version   Int      @default(1)
   appliedAt DateTime @default(now())
+}
+
+/// A coach's athletes or a box's students. Only the owner programs; members are always students.
+model Team {
+  id          String           @id @default(cuid())
+  kind        TeamKind
+  name        String
+  description String?
+  joinCode    String           @unique
+  ownerId     String
+  owner       GuestProfile     @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members     TeamMember[]
+  days        ProgrammingDay[]
+  workouts    Workout[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([ownerId])
+}
+
+model TeamMember {
+  id        String       @id @default(cuid())
+  teamId    String
+  team      Team         @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  profileId String
+  profile   GuestProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  status    MemberStatus @default(PENDING)
+  joinedAt  DateTime?
+  createdAt DateTime     @default(now())
+
+  @@unique([teamId, profileId])
+  @@index([profileId])
+}
+
+/// One day of programming. assigneeId null = whole team; set = one athlete (COACH teams only).
+/// Uniqueness of (teamId, date, assigneeId) is enforced in code because Postgres treats NULLs as distinct.
+model ProgrammingDay {
+  id          String             @id @default(cuid())
+  teamId      String
+  team        Team               @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  date        DateTime           @db.Date
+  assigneeId  String?
+  assignee    GuestProfile?      @relation("DayAssignee", fields: [assigneeId], references: [id], onDelete: Cascade)
+  title       String?
+  notes       String?
+  publishedAt DateTime?
+  blocks      ProgrammingBlock[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([teamId, date])
+  @@index([assigneeId])
+}
+
+model ProgrammingBlock {
+  id        String          @id @default(cuid())
+  dayId     String
+  day       ProgrammingDay  @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  order     Int             @default(0)
+  kind      BlockKind       @default(OTHER)
+  title     String
+  content   String          @default("")
+  workoutId String?         @unique
+  workout   Workout?        @relation(fields: [workoutId], references: [id], onDelete: SetNull)
+  results   WorkoutResult[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([dayId, order])
 }

@@ -1,47 +1,52 @@
 ---
 type: article
-title: Sistema visual Forge Dark
-description: Paleta, tipografía y reglas de accesibilidad del sistema de diseño de WodTrace.
+title: Sistema visual Zinc Teal
+description: Paleta, tokens semánticos, tipografía y reglas de accesibilidad del sistema de diseño de WodTrace.
 resource: ../../../Design.md
 tags: [diseno, ui, accesibilidad]
-timestamp: 2026-10-06T00:00:00Z
-aliases: [design-system]
+timestamp: 2026-10-08T00:00:00Z
+aliases: [design-system, forge-dark]
 topic: diseno
 status: draft
 sources: [Design.md]
 score: 0.0
 ---
 
-# Sistema visual Forge Dark
+# Sistema visual Zinc Teal
 
-> Sources: Design.md, 2026-10-06
-> Raw: [design-forge-dark](../../raw/diseno/design-forge-dark.md)
+> Sources: Design.md, 2026-10-08
+> Raw: [design-forge-dark](../../raw/diseno/design-forge-dark.md) (versión anterior, Forge Dark)
 
 ## Overview
 
-Forge Dark es un sistema en modo oscuro con acentos de alta energía, pensado para usarse en el gimnasio. Los tokens viven en `src/app/globals.css`, con variante clara en `.light`.
+Desde el 2026-10-08, WodTrace usa **Zinc Teal**: base zinc oscura con un único acento teal-400. Sustituye a Forge Dark, que tenía acento naranja-rojo.
 
-## Paleta
+- **Tokens:** viven en `src/app/globals.css`, con variante clara en `.light`.
+- **Fuente de verdad:** `Design.md` §2.
+- **Por qué este sistema:** ver la decisión del 2026-10-08 en [decisions](../harness/decisions.md).
 
-| Rol | HEX |
-|-----|-----|
-| Fondo | `#0B0C10` |
-| Superficie | `#15171D` |
-| Tarjeta | `#1C1F27` |
-| Borde | `#343842` |
-| Energía / CTA | `#FF3D23` (gradiente hasta `#FF6B35`) |
-| Éxito | `#31D17C` |
-| Logro / PR | `#FFB703` |
-| Información | `#55C6FF` |
-| Texto | `#FAFAFA` / `#B6B8C3` / `#858995` |
+## Tokens (tema oscuro)
 
-## Tipografía y reglas
+| Token | HEX | Uso |
+|-------|-----|-----|
+| `background` / `surface` / `card` / `border` | `#09090B` / `#18181B` / `#27272A` / `#3F3F46` | Base zinc |
+| `primary` / `primary-hover` | `#00D5BE` / `#46ECD5` | Acento único de marca |
+| `on-primary` | `#09090B` | Texto sobre rellenos teal |
+| `gold` | `#FBBF24` | PRs y logros |
+| `info` | `#A3B3FF` | Información |
+| `success` / `danger` | `#4ADE80` / `#FF6467` | Éxito / errores y acciones destructivas |
+| Texto | `#FAFAFA` / `#D4D4D8` / `#A1A1AA` | Principal / secundario / atenuado |
 
-- **Tipografía:** titulares en Barlow Condensed ExtraBold (mayúsculas); interfaz y lectura en Inter.
-- **Interacción:** objetivos táctiles de 48 px, contraste WCAG AA y navegación por teclado.
-- **Navegación:** barra inferior en móvil y panel lateral en escritorio.
-- **Contraste conocido:** texto blanco sobre `#FF3D23` no llega a AA en tamaño normal. En botones, usa texto oscuro.
+## Reglas
+
+- **Usa clases semánticas** (`bg-primary text-on-primary`), nunca hex en componentes. Constitución, principio 23.
+- **Errores y destructivos en `danger`**, nunca en el acento de marca.
+- **El éxito no se comunica solo con color**: tiene luminosidad parecida al teal.
+- **En tema claro el acento baja a teal-700** `#00786F` con texto blanco.
+- **Tipografía:** Barlow Condensed ExtraBold para titulares e Inter para la interfaz.
+- **Accesibilidad:** objetivos táctiles de 48 px y WCAG AA.
 
 ## Related
 
 - [Visión y alcance](../producto/vision-y-alcance.md): las pantallas a las que se aplica.
+- [Paleta Zinc Teal (FTD)](../ftd/paleta-zinc-teal.md): cómo se implementó.

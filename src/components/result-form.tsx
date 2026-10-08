@@ -1,8 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "./ui/button";
+import { ActionForm, SubmitButton } from "./action-form";
 import { Input, Label, Select, Textarea } from "./ui/input";
 import { formatDateInput } from "@/lib/utils";
 import { formatSeconds } from "@/lib/scoring";
@@ -13,6 +11,8 @@ interface ResultFormProps {
   workoutId: string;
   scoreType: ScoreType;
   weightUnit: "KG" | "LB";
+  /** Where to go after saving; defaults to the WOD detail page. */
+  returnTo?: string;
   result?: {
     id: string;
     performedAt: string;
@@ -31,26 +31,20 @@ export function ResultForm({
   workoutId,
   scoreType,
   weightUnit,
+  returnTo,
   result,
 }: ResultFormProps) {
-  const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
-  const [pending, start] = useTransition();
   const isEdit = Boolean(result);
 
-  function onSubmit(formData: FormData) {
-    setError(null);
-    start(async () => {
-      const res = isEdit
-        ? await updateWorkoutResult(formData)
-        : await logWorkoutResult(formData);
-      if (res && "error" in res && res.error) {
-        setError(res.error);
-        return;
-      }
-      router.push(`/wods/${workoutId}`);
-      router.refresh();
-    });
+  async function submit(formData: FormData) {
+    const res = isEdit
+      ? await updateWorkoutResult(formData)
+      : await logWorkoutResult(formData);
+    if (res && "error" in res && res.error) return { error: res.error };
+    return {
+      message: isEdit ? "Resultado actualizado" : "Resultado registrado",
+      redirectTo: returnTo ?? `/wods/${workoutId}`,
+    };
   }
 
   const weightDisplay =
@@ -61,7 +55,7 @@ export function ResultForm({
       : "";
 
   return (
-    <form action={onSubmit} className="space-y-4">
+    <ActionForm action={submit} className="space-y-4">
       <input type="hidden" name="workoutId" value={workoutId} />
       {result ? <input type="hidden" name="id" value={result.id} /> : null}
 
@@ -194,20 +188,14 @@ export function ResultForm({
             name="photo"
             type="file"
             accept="image/*"
-            className="pt-2.5 file:mr-3 file:rounded-lg file:border-0 file:bg-ember/15 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-ember"
+            className="pt-2.5 file:mr-3 file:rounded-lg file:border-0 file:bg-primary/15 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-primary"
           />
         </div>
       ) : null}
 
-      {error ? (
-        <p className="text-sm text-ember" role="alert">
-          {error}
-        </p>
-      ) : null}
-
-      <Button type="submit" className="w-full" disabled={pending}>
-        {pending ? "Guardando…" : isEdit ? "Actualizar" : "Registrar resultado"}
-      </Button>
-    </form>
+      <SubmitButton className="w-full" pendingLabel="Guardando…">
+        {isEdit ? "Actualizar" : "Registrar resultado"}
+      </SubmitButton>
+    </ActionForm>
   );
 }

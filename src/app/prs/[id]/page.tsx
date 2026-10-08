@@ -19,6 +19,7 @@ import {
 } from "@/lib/scoring";
 import { formatDateEs } from "@/lib/utils";
 import { SCORE_TYPE_LABELS, type ScoreType } from "@/lib/types";
+import { preferredWeightUnit } from "@/lib/units";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +31,7 @@ export default async function PRDetailPage({
   const { id } = await params;
   const guest = await getGuestOrNull();
   if (!guest) return <GuestLoading />;
-  const unit = guest.preference?.weightUnit === "LB" ? "LB" : "KG";
+  const unit = preferredWeightUnit(guest.preference);
 
   const pr = await prisma.personalRecord.findFirst({
     where: {
@@ -137,7 +138,7 @@ export default async function PRDetailPage({
                 <li key={a.id}>
                   <Card className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="font-display text-lg text-ember">
+                      <p className="font-display text-lg text-primary">
                         {score.primary}
                       </p>
                       <p className="text-xs text-text-muted">
@@ -146,11 +147,12 @@ export default async function PRDetailPage({
                       </p>
                     </div>
                     <ConfirmDelete
+                      successMessage="Intento eliminado"
                       action={async () => {
                         "use server";
                         const fd = new FormData();
                         fd.set("id", a.id);
-                        await deletePRAttempt(fd);
+                        return deletePRAttempt(fd);
                       }}
                     />
                   </Card>

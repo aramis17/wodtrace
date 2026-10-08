@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { getGuestOrNull } from "@/lib/guest";
 import { GuestLoading } from "@/lib/guest-page";
 import type { ScoreType } from "@/lib/types";
+import { preferredWeightUnit } from "@/lib/units";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +24,7 @@ export default async function EditResultPage({
   });
   if (!result) notFound();
 
-  const unit = guest.preference?.weightUnit === "LB" ? "LB" : "KG";
+  const unit = preferredWeightUnit(guest.preference);
 
   return (
     <div className="space-y-5">

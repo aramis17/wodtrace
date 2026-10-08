@@ -3,8 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireGuest } from "@/lib/guest";
+import { visibleWorkoutWhere } from "@/lib/teams";
 import { parseTimeToSeconds } from "@/lib/scoring";
-import { parseWeightInput, type WeightUnit } from "@/lib/units";
+import { parseWeightInput, preferredWeightUnit } from "@/lib/units";
 import { parseDateInput } from "@/lib/utils";
 import { uploadResultPhoto } from "@/lib/storage";
 import type { Scaling } from "@/lib/types";
@@ -15,8 +16,9 @@ export async function logWorkoutResult(formData: FormData) {
   const workout = await prisma.workout.findFirst({
     where: {
       id: workoutId,
-      OR: [{ isSeed: true }, { guestId: guest.id }],
+      ...visibleWorkoutWhere(guest.id),
     },
+    include: { block: { select: { id: true, day: { select: { teamId: true } } } } },
   });
   if (!workout) return { error: "WOD no encontrado" };
 
@@ -26,7 +28,7 @@ export async function logWorkoutResult(formData: FormData) {
     : new Date();
   const scaling = (String(formData.get("scaling") || "RX") as Scaling) || "RX";
   const notes = String(formData.get("notes") || "").trim() || null;
-  const unit = (guest.preference?.weightUnit || "KG") as WeightUnit;
+  const unit = preferredWeightUnit(guest.preference);
 
   let timeSeconds: number | null = null;
   let reps: number | null = null;
@@ -104,10 +106,13 @@ export async function logWorkoutResult(formData: FormData) {
       customValue,
       notes,
       mediaId,
+      // A programmed WOD belongs to exactly one block; linking it feeds the day's leaderboard.
+      programmingBlockId: workout.block?.id ?? null,
     },
   });
 
   revalidatePath("/");
+  if (workout.block) revalidatePath(`/box/${workout.block.day.teamId}`, "layout");
   revalidatePath("/activity");
   revalidatePath(`/wods/${workoutId}`);
   return { id: result.id };
@@ -128,7 +133,7 @@ export async function updateWorkoutResult(formData: FormData) {
     : existing.performedAt;
   const scaling = (String(formData.get("scaling") || existing.scaling) as Scaling);
   const notes = String(formData.get("notes") || "").trim() || null;
-  const unit = (guest.preference?.weightUnit || "KG") as WeightUnit;
+  const unit = preferredWeightUnit(guest.preference);
 
   const data: Record<string, unknown> = {
     performedAt,

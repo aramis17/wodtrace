@@ -6,31 +6,43 @@
 
 ---
 
-## 2. Sistema de color “Forge Dark”
+## 2. Sistema de color "Zinc Teal"
 
-La paleta se estructura sobre tonos oscuros profundos con acentos de alta energía en naranja-rojo forja.
+Base zinc neutra y oscura, con **un único acento teal** de marca. El dorado se reserva para los logros (PRs), así que destaca como el único color cálido de la pantalla. Los tokens viven en `src/app/globals.css`; usa siempre el token semántico (`bg-primary`, `text-on-primary`…), nunca el hex.
 
-### 2.1 Colores principales
+### 2.1 Colores (tema oscuro, por defecto)
 
-| Rol | Nombre | HEX | Uso principal |
+| Token | Rol | HEX | Uso principal |
 | :--- | :--- | :--- | :--- |
-| **Fondo base** | Forge Black | `#0B0C10` | Fondo general de la app |
-| **Superficie** | Forge Surface | `#15171D` | Barras, paneles, navegación |
-| **Tarjeta elevada** | Forge Card | `#1C1F27` | Cards, modales, contenedores |
-| **Borde** | Forge Border | `#343842` | Divisores, outlines |
-| **Energía / CTA** | Forge Ember | `#FF3D23` | Botones primarios, estados activos |
-| **Gradiente hero** | Ember → Flame | `#FF3D23 → #FF6B35` | Headers, destacados |
-| **Éxito** | Performance Green | `#31D17C` | Completado, métricas positivas |
-| **Logro** | Gold Medal | `#FFB703` | PRs, hitos, nivel atlético |
-| **Información** | Signal Blue | `#55C6FF` | Info, enlaces secundarios |
+| `background` | Fondo base | `#09090B` (zinc-950) | Fondo general de la app |
+| `surface` | Superficie | `#18181B` (zinc-900) | Barra de navegación, inputs |
+| `card` | Tarjeta | `#27272A` (zinc-800) | Cards, modales, botón secundario |
+| `border` | Borde | `#3F3F46` (zinc-700) | Divisores, outlines |
+| `primary` | Acento de marca | `#00D5BE` (teal-400) | Botones primarios, estado activo, enlaces, gráficas, foco |
+| `primary-hover` | Acento hover | `#46ECD5` (teal-300) | Hover de botones y enlaces |
+| `on-primary` | Texto sobre acento | `#09090B` | Texto e iconos sobre rellenos teal (**nunca blanco**: 1.9:1) |
+| `gold` | Logro | `#FBBF24` | PRs, mejor marca, nivel atlético |
+| `info` | Información | `#A3B3FF` (indigo-300) | Tipo de puntuación, escalado, info secundaria |
+| `success` | Éxito | `#4ADE80` | Completado (acompañar siempre con icono o texto: luminosidad similar al teal) |
+| `danger` | Error / destructivo | `#FF6467` (red-400) | Errores, borrar, restablecer. **Nunca** usar el acento para errores |
 
 ### 2.2 Texto y neutros
 
-| Rol | HEX | Uso |
+| Token | HEX | Uso |
 | :--- | :--- | :--- |
-| **Texto primario** | `#FAFAFA` | Titulares, texto principal |
-| **Texto secundario** | `#B6B8C3` | Cuerpo, descripciones |
-| **Texto atenuado** | `#858995` | Captions, timestamps, deshabilitado |
+| `text-primary` | `#FAFAFA` | Titulares, texto principal |
+| `text-secondary` | `#D4D4D8` (zinc-300) | Cuerpo, descripciones |
+| `text-muted` | `#A1A1AA` (zinc-400) | Captions, fechas, deshabilitado (zinc-500 no pasa AA sobre `card`) |
+
+### 2.3 Contraste (WCAG AA)
+
+| Par | Ratio |
+| :--- | :--- |
+| `on-primary` sobre `primary` | 10.7:1 |
+| `primary` sobre `card` / `background` | 8.0:1 / 10.7:1 |
+| `text-muted` sobre `card` | 5.8:1 |
+| `danger` sobre `card` | 5.2:1 |
+| `info` sobre su fondo tintado (14 %) | 5.5:1 |
 
 ---
 
@@ -52,7 +64,7 @@ h1 {
   line-height: 1.15;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: #FAFAFA;
+  color: var(--text-primary);
 }
 
 h2 {
@@ -62,14 +74,14 @@ h2 {
   line-height: 1.2;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: #FAFAFA;
+  color: var(--text-primary);
 }
 
 h3 {
   font-family: 'Inter', sans-serif;
   font-size: 1.125rem;
   font-weight: 600;
-  color: #FAFAFA;
+  color: var(--text-primary);
 }
 
 body {
@@ -77,14 +89,14 @@ body {
   font-size: 0.9375rem;
   font-weight: 400;
   line-height: 1.5;
-  color: #B6B8C3;
+  color: var(--text-secondary);
 }
 
 .caption {
   font-family: 'Inter', sans-serif;
   font-size: 0.75rem;
   font-weight: 500;
-  color: #858995;
+  color: var(--text-muted);
 }
 ```
 
@@ -95,14 +107,14 @@ body {
 ### 4.1 Marca
 
 * **Concepto:** Rastro de esfuerzo / trazo de barra + llama de forja.
-* **Fondo de icono:** `#0B0C10`
-* **Acento:** `#FF3D23` con glow sutil
+* **Fondo de icono:** `#09090B`
+* **Acento:** `#00D5BE` (monograma "WT" en `public/icon-*.svg` / `.png`)
 
 ### 4.2 Iconos UI
 
 * Estilo lineal, trazo 2px, uniones redondeadas
-* Inactivo: `#858995`
-* Activo: `#FF3D23`
+* Inactivo: `text-muted`
+* Activo: `primary`
 
 ---
 
@@ -110,26 +122,28 @@ body {
 
 ### 5.1 Botones
 
-* **Primario (CTA):** fondo `#FF3D23`, texto `#FAFAFA`, radius `12px`, min-height `48px`, sombra `0 4px 14px rgba(255, 61, 35, 0.35)`
-* **Secundario:** fondo transparente o `#1C1F27`, borde `1px solid #343842`, texto `#FAFAFA`
-* **Ghost:** sin borde, texto `#B6B8C3`
+* **Primario (CTA):** fondo `primary`, texto `on-primary` semibold, radius `12px`, min-height `48px`, sombra `0 4px 14px` del acento al 30 %
+* **Secundario:** fondo `card`, borde `1px solid border`, texto `text-primary`
+* **Ghost:** sin borde, texto `text-secondary`
+* **Destructivo:** fondo `danger` al 15 %, texto `danger`, borde `danger` al 30 %
 
 ### 5.2 Tarjetas WOD
 
-* Fondo `#1C1F27`, borde `1px solid #343842`, padding `16px`, radius `16px`, gap interno `12px`
+* Fondo `card`, borde `1px solid border`, padding `16px`, radius `16px`, gap interno `12px`
 
 ### 5.3 Badges
 
-* **Éxito:** fondo `#31D17C1F`, texto `#31D17C`
-* **Info:** fondo `#55C6FF1F`, texto `#55C6FF`
-* **Logro / PR:** fondo `#FFB7031F`, texto `#FFB703`
-* **Energía:** fondo `#FF3D231F`, texto `#FF3D23`
+* **Éxito:** fondo `success` al 12 %, texto `success`
+* **Info:** fondo `info` al 12 %, texto `info`
+* **Logro / PR:** fondo `gold` al 12 %, texto `gold`
+* **Marca:** fondo `primary` al 12 %, texto `primary`
+* **Neutro:** fondo `border` al 40 %, texto `text-muted`
 
 ---
 
 ## 6. Layout y navegación
 
-* **Móvil:** columna única, bottom navigation fija (Inicio, Actividad, WODs, Timers, PRs, Más)
+* **Móvil:** columna única, bottom navigation fija (Inicio, WODs, Box, Timers, PRs, Más)
 * **Escritorio:** contenedor centrado (max-width ~480–560px en flujo móvil-primero) o layout con panel lateral de navegación
 * **Sin** imitación de barra de estado del teléfono
 * Objetivos táctiles mínimos **48×48 px**
@@ -140,8 +154,8 @@ body {
 
 ## 7. Tema claro / oscuro / sistema
 
-* Por defecto: oscuro (Forge Dark)
-* Claro: invertir superficies a grises claros manteniendo CTA `#FF3D23`
+* Por defecto: oscuro (Zinc Teal)
+* Claro: fondo `#FAFAFA`, superficies blancas, bordes `#E4E4E7`, texto `#09090B` / `#3F3F46` / `#71717B`. El acento baja a **teal-700 `#00786F`** con texto blanco (5.4:1), porque teal-400 no pasa como texto sobre blanco. `danger` red-600, `gold` amber-700, `info` indigo-600, `success` green-700.
 * Preferencia del usuario en ajustes; respetar `prefers-color-scheme` en modo sistema
 
 ---

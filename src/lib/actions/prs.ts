@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireGuest } from "@/lib/guest";
 import { parseTimeToSeconds } from "@/lib/scoring";
-import { parseWeightInput, type WeightUnit } from "@/lib/units";
+import { parseWeightInput, preferredWeightUnit } from "@/lib/units";
 import { parseDateInput } from "@/lib/utils";
 import type { ScoreType } from "@/lib/types";
 
@@ -25,7 +25,7 @@ export async function createCustomPR(formData: FormData) {
   });
 
   revalidatePath("/prs");
-  return { id: pr.id };
+  return { id: pr.id, message: "PR creado", redirectTo: `/prs/${pr.id}` };
 }
 
 export async function renamePR(formData: FormData) {
@@ -102,7 +102,7 @@ export async function logPRAttempt(formData: FormData) {
     ? parseDateInput(performedAtRaw)
     : new Date();
   const notes = String(formData.get("notes") || "").trim() || null;
-  const unit = (guest.preference?.weightUnit || "KG") as WeightUnit;
+  const unit = preferredWeightUnit(guest.preference);
 
   let timeSeconds: number | null = null;
   let reps: number | null = null;

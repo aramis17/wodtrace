@@ -1,33 +1,38 @@
 @import "tailwindcss";
 
+/* Zinc Teal (Design.md §2). Every text/fill pair below is ≥ 4.5:1 (WCAG AA). */
 :root {
-  --background: #0b0c10;
-  --surface: #15171d;
-  --card: #1c1f27;
-  --border: #343842;
-  --ember: #ff3d23;
-  --flame: #ff6b35;
-  --success: #31d17c;
-  --gold: #ffb703;
-  --info: #55c6ff;
+  --background: #09090b; /* zinc-950 */
+  --surface: #18181b; /* zinc-900: nav, inputs */
+  --card: #27272a; /* zinc-800 */
+  --border: #3f3f46; /* zinc-700 */
+  --primary: #00d5be; /* teal-400: the single brand accent (fills and accent text) */
+  --primary-hover: #46ecd5; /* teal-300 */
+  --on-primary: #09090b; /* text on primary fills — never white (1.9:1) */
+  --danger: #ff6467; /* red-400: errors and destructive actions only */
+  --success: #4ade80;
+  --gold: #fbbf24; /* PRs and achievements */
+  --info: #a3b3ff; /* indigo-300: distinct from the teal accent */
   --text-primary: #fafafa;
-  --text-secondary: #b6b8c3;
-  --text-muted: #858995;
+  --text-secondary: #d4d4d8;
+  --text-muted: #a1a1aa;
 }
 
 .light {
-  --background: #f4f5f7;
+  --background: #fafafa;
   --surface: #ffffff;
   --card: #ffffff;
-  --border: #d8dae3;
-  --ember: #ff3d23;
-  --flame: #ff6b35;
-  --success: #1fa85a;
-  --gold: #c98f00;
-  --info: #1a8fc9;
-  --text-primary: #0b0c10;
-  --text-secondary: #3d4050;
-  --text-muted: #6b6f80;
+  --border: #e4e4e7;
+  --primary: #00786f; /* teal-700: teal-400 fails as text on white */
+  --primary-hover: #005f5a; /* teal-800 */
+  --on-primary: #ffffff;
+  --danger: #e7000b; /* red-600 */
+  --success: #008236; /* green-700 */
+  --gold: #bb4d00; /* amber-700 */
+  --info: #4f39f6; /* indigo-600 */
+  --text-primary: #09090b;
+  --text-secondary: #3f3f46;
+  --text-muted: #71717b;
 }
 
 @theme inline {
@@ -35,8 +40,10 @@
   --color-surface: var(--surface);
   --color-card: var(--card);
   --color-border: var(--border);
-  --color-ember: var(--ember);
-  --color-flame: var(--flame);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-on-primary: var(--on-primary);
+  --color-danger: var(--danger);
   --color-success: var(--success);
   --color-gold: var(--gold);
   --color-info: var(--info);

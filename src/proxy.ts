@@ -1,12 +1,34 @@
-import { NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
 
-/** Reserved for future edge logic (geo, headers). Guest bootstrap is a route handler. */
-export function proxy() {
-  return NextResponse.next();
+/** Refreshes the Supabase Auth session cookie. Guest bootstrap is a route handler. */
+export async function proxy(request: NextRequest) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  let response = NextResponse.next({ request });
+  if (!url || !key) return response;
+
+  const supabase = createServerClient(url, key, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
+      },
+      setAll(toSet) {
+        for (const { name, value } of toSet) request.cookies.set(name, value);
+        response = NextResponse.next({ request });
+        for (const { name, value, options } of toSet) {
+          response.cookies.set(name, value, options);
+        }
+      },
+    },
+  });
+
+  await supabase.auth.getClaims();
+  return response;
 }
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|uploads/|.*\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

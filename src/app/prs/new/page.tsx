@@ -1,18 +1,11 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ActionForm, SubmitButton } from "@/components/action-form";
 import { Input, Label, Select } from "@/components/ui/input";
 import { createCustomPR } from "@/lib/actions/prs";
 import { SCORE_TYPE_LABELS, type ScoreType } from "@/lib/types";
 
 export default function NewPRPage() {
-  async function action(formData: FormData) {
-    "use server";
-    const res = await createCustomPR(formData);
-    if (res && "id" in res && res.id) redirect(`/prs/${res.id}`);
-  }
-
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-2">
@@ -27,7 +20,7 @@ export default function NewPRPage() {
           Nuevo PR
         </h1>
       </div>
-      <form action={action} className="space-y-4">
+      <ActionForm action={createCustomPR} className="space-y-4">
         <div>
           <Label htmlFor="name">Nombre</Label>
           <Input id="name" name="name" required placeholder="Ej. Yoke carry" />
@@ -42,10 +35,10 @@ export default function NewPRPage() {
             ))}
           </Select>
         </div>
-        <Button type="submit" className="w-full">
+        <SubmitButton className="w-full" pendingLabel="Creando…">
           Crear
-        </Button>
-      </form>
+        </SubmitButton>
+      </ActionForm>
     </div>
   );
 }

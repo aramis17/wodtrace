@@ -117,7 +117,7 @@ export default async function WodsPage({
           {workouts.map((w) => (
             <li key={w.id}>
               <Link href={`/wods/${w.id}`}>
-                <Card className="flex items-start justify-between gap-3 transition-colors hover:border-ember/40">
+                <Card className="flex items-start justify-between gap-3 transition-colors hover:border-primary/40">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="font-semibold text-text-primary">{w.name}</p>
@@ -135,7 +135,7 @@ export default async function WodsPage({
                       <Badge tone="info">
                         {SCORE_TYPE_LABELS[w.scoreType as ScoreType]}
                       </Badge>
-                      {w.isCustom ? <Badge tone="ember">Custom</Badge> : null}
+                      {w.isCustom ? <Badge tone="primary">Custom</Badge> : null}
                     </div>
                   </div>
                 </Card>
@@ -163,7 +163,7 @@ function CatChip({
       className={cn(
         "inline-flex min-h-12 shrink-0 items-center rounded-xl px-4 text-sm font-semibold",
         active
-          ? "bg-ember text-text-primary"
+          ? "bg-primary text-on-primary"
           : "border border-border bg-card text-text-secondary",
       )}
     >

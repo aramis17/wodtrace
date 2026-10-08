@@ -1,20 +1,24 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import {
   Calculator,
   ExternalLink,
   HelpCircle,
+  LogIn,
+  LogOut,
   Share2,
   Star,
   Timer,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ActionForm, SubmitButton } from "@/components/action-form";
 import { Input, Label, Select } from "@/components/ui/input";
 import { prisma } from "@/lib/db";
 import { getGuestOrNull } from "@/lib/guest";
 import { GuestLoading } from "@/lib/guest-page";
 import { resetAllData, updateSettings } from "@/lib/actions/settings";
+import { signOut } from "@/lib/actions/auth";
+import { preferredWeightUnit } from "@/lib/units";
 
 export const dynamic = "force-dynamic";
 
@@ -26,18 +30,6 @@ export default async function SettingsPage() {
     orderBy: { sortOrder: "asc" },
   });
 
-  async function save(formData: FormData) {
-    "use server";
-    await updateSettings(formData);
-    redirect("/settings");
-  }
-
-  async function reset() {
-    "use server";
-    await resetAllData();
-    redirect("/");
-  }
-
   const helpUrl = pref?.helpUrl || "https://opencode.ai";
   const shareUrl = pref?.shareUrl || "";
   const rateUrl = pref?.rateUrl || "";
@@ -48,10 +40,45 @@ export default async function SettingsPage() {
         <h1 className="font-display text-3xl uppercase text-text-primary">
           Configuración
         </h1>
-        <p className="text-sm text-text-muted">Perfil invitado · solo este navegador</p>
+        <p className="text-sm text-text-muted">
+          {guest.userId
+            ? `Cuenta · ${guest.email ?? ""}`
+            : "Perfil invitado · solo este navegador"}
+        </p>
       </header>
 
-      <form action={save} className="space-y-4">
+      <Card className="space-y-3">
+        {guest.userId ? (
+          <>
+            <p className="text-sm text-text-secondary">
+              Sesión iniciada como{" "}
+              <strong className="text-text-primary">{guest.email}</strong>. Tus
+              datos están disponibles en cualquier dispositivo donde entres.
+            </p>
+            <ActionForm action={signOut}>
+              <SubmitButton variant="secondary" className="w-full">
+                <LogOut className="h-4 w-4" />
+                Cerrar sesión
+              </SubmitButton>
+            </ActionForm>
+          </>
+        ) : (
+          <>
+            <p className="text-sm text-text-secondary">
+              Estás usando el perfil demo compartido. Crea una cuenta para
+              tener tus propios registros y unirte a tu box o coach.
+            </p>
+            <Link href="/login?next=/settings">
+              <Button className="w-full">
+                <LogIn className="h-4 w-4" />
+                Entrar o crear cuenta
+              </Button>
+            </Link>
+          </>
+        )}
+      </Card>
+
+      <ActionForm action={updateSettings} className="space-y-4">
         <Card className="space-y-4">
           <div>
             <Label htmlFor="alias">Alias de atleta</Label>
@@ -62,7 +89,7 @@ export default async function SettingsPage() {
             <Select
               id="weightUnit"
               name="weightUnit"
-              defaultValue={pref?.weightUnit ?? "KG"}
+              defaultValue={preferredWeightUnit(pref)}
             >
               <option value="KG">Kilogramos (kg)</option>
               <option value="LB">Libras (lb)</option>
@@ -99,16 +126,26 @@ export default async function SettingsPage() {
               name="keepScreenAwake"
               value="true"
               defaultChecked={pref?.keepScreenAwake ?? false}
-              className="h-5 w-5 accent-ember"
+              className="h-5 w-5 accent-primary"
             />
             Mantener pantalla encendida (preferencia)
           </label>
+          <label className="flex min-h-12 items-center gap-3 text-sm text-text-secondary">
+            <input
+              type="checkbox"
+              name="showOnLeaderboard"
+              value="true"
+              defaultChecked={pref?.showOnLeaderboard ?? true}
+              className="h-5 w-5 accent-primary"
+            />
+            Aparecer en el ranking de mi box
+          </label>
           <p className="text-xs text-text-muted">Idioma: Español</p>
-          <Button type="submit" className="w-full">
+          <SubmitButton className="w-full" pendingLabel="Guardando…">
             Guardar
-          </Button>
+          </SubmitButton>
         </Card>
-      </form>
+      </ActionForm>
 
       <Card className="space-y-1 p-2">
         <SettingsLink href="/tools/barbell" icon={Calculator} label="Calculadora de barra" />
@@ -154,11 +191,14 @@ export default async function SettingsPage() {
           Elimina todos tus resultados, favoritos y WODs/PRs personalizados de
           este perfil invitado. No se puede deshacer.
         </p>
-        <form action={reset}>
-          <Button type="submit" variant="danger" className="w-full">
+        <ActionForm
+          action={resetAllData}
+          confirmMessage="¿Restablecer todos tus datos? No se puede deshacer."
+        >
+          <SubmitButton variant="danger" className="w-full">
             Restablecer datos
-          </Button>
-        </form>
+          </SubmitButton>
+        </ActionForm>
       </Card>
     </div>
   );
