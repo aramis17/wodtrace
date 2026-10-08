@@ -5,12 +5,12 @@ description: The non-negotiable principles every rsc-sdd phase obeys.
 tags: [sdd, constitution]
 timestamp: 2026-10-07T00:00:00Z
 topic: sdd
-version: v1.0.0
+version: v1.1.0
 ---
 
 # WodTrace — Constitution
 
-> Version: v1.0.0 · Ratified: 2026-10-07 · Last amended: 2026-10-07
+> Version: v1.1.0 · Ratified: 2026-10-07 · Last amended: 2026-10-08
 > The non-negotiable principles every rsc-sdd phase obeys. Mechanics live in `CLAUDE.md` and
 > `02-DOCS/wiki/arquitectura/arquitectura-general.md`; this file ratifies the principle.
 
@@ -64,10 +64,22 @@ version: v1.0.0
 
 ## 6. UX / accessibility floor
 
-19. Meet WCAG 2.2 AA. Touch targets are at least 44–48 px, controls are real (`<button>`, `<a>`,
+~~19. Meet WCAG 2.2 AA. Touch targets are at least 44–48 px, controls are real (`<button>`, `<a>`,
     `<label>`), icon-only buttons carry an `aria-label`, and keyboard navigation works. Visual
-    tokens come from Forge Dark (`Design.md`, `src/app/globals.css`).
+    tokens come from Forge Dark (`Design.md`, `src/app/globals.css`).~~ (superseded by 23)
 20. Every screen works at phone width (mobile-first) first.
+23. Meet WCAG 2.2 AA:
+    - Touch targets are at least 44–48 px.
+    - Controls are real elements (`<button>`, `<a>`, `<label>`).
+    - Icon-only buttons carry an `aria-label`.
+    - Keyboard navigation works.
+
+    Colors come only from the **Zinc Teal** semantic tokens (`Design.md` §2, `src/app/globals.css`).
+    Components never use raw hex values. The only exceptions are standard plate colors and
+    generated assets.
+    - Text on a `primary` fill uses `on-primary`, never white.
+    - Errors and destructive actions use `danger`, never the brand accent.
+    - Success is never signalled by color alone.
 
 ## 7. Knowledge & decisions
 
@@ -83,7 +95,7 @@ version: v1.0.0
 - [ ] Conventions are followed: Spanish copy, the action shape, profile-scoped queries, kg, the team model (8–12).
 - [ ] The commit uses gitmoji, goes on `master` and has human authorship (13–15).
 - [ ] No secret is committed and the security floor is met (16–18).
-- [ ] Accessibility and mobile-first hold (19–20).
+- [ ] Accessibility, Zinc Teal tokens and mobile-first hold (20, 23).
 - [ ] Decisions are logged and `CLAUDE.md` is updated if needed (21–22).
 
 ## Amendment log (append-only)
@@ -91,3 +103,4 @@ version: v1.0.0
 | Date | Version | Change | Why |
 |------|---------|--------|-----|
 | 2026-10-07 | v1.0.0 | Ratified initial constitution. | rsc onboarding. Choices made: pure-logic tests, human-only authorship, no perf budget yet. Principle 11 set to lb display default before ratification. |
+| 2026-10-08 | v1.1.0 | Principle 19 superseded by 23: Zinc Teal semantic tokens, `on-primary` text on fills, `danger` separate from the accent, success not color-only. | User chose the Zinc Teal palette. White text on the old `#FF3D23` CTA failed AA (3.5:1). |
