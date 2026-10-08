@@ -4,3 +4,4 @@
 !*/.env.example
 */keys/
 */out/
+*.local.md
