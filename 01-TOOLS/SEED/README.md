@@ -7,4 +7,4 @@
 - Las credenciales quedan en `CREDENTIALS.local.md` (esta carpeta). **Está en `.gitignore`: no se sube.**
 - Se puede repetir: reconstruye los dos equipos (ids `seed-team-*`) y vuelve a fijar la contraseña. No toca otros datos.
 - Los correos son `@wodtrace.test`: no reciben email, solo sirven para entrar con contraseña.
-- "Entrar con contraseña" aparece en `/login` en desarrollo, o en producción con `AUTH_PASSWORD_LOGIN=true`.
+- Se entra en `/login` con correo y contraseña, igual que cualquier cuenta.
